@@ -137,6 +137,7 @@
         const cupFull = new Image();
         const bottleEmpty = new Image();
         const bottleFull = new Image();
+        const waterStream = new Image();
 
         let loaded = 0;
 
@@ -156,12 +157,13 @@
             onLoad();
         };
         bottleFull.onload = onLoad;
+        waterStream.onload = onLoad;
 
-        cupEmpty.src = "res/cup_empty.png";
-        cupFull.src = "res/cup_full.png";
-        bottleEmpty.src = "res/bottle_empty.png";
-        bottleFull.src = "res/bottle_full.png";
-
+        cupEmpty.src = "cup_empty.png";
+        cupFull.src = "cup_full.png";
+        bottleEmpty.src = "bottle_empty.png";
+        bottleFull.src = "bottle_full.png";
+        waterStream.src = "waterfall.png";
 
         let t = 0;
 
@@ -391,7 +393,7 @@
         }
 
         function isNearCup(bottle, cup) {
-            const margin = 25;
+            const margin = 50;
             return (bottle.x < cup.x + cup.w + margin &&
                 bottle.x + bottle.w > cup.x - margin &&
                 bottle.y < cup.y + cup.h + margin &&
