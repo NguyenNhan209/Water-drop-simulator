@@ -137,7 +137,6 @@
         const cupFull = new Image();
         const bottleEmpty = new Image();
         const bottleFull = new Image();
-        const waterStream = new Image();
 
         let loaded = 0;
 
@@ -157,13 +156,12 @@
             onLoad();
         };
         bottleFull.onload = onLoad;
-        waterStream.onload = onLoad;
 
-        cupEmpty.src = "cup_empty.png";
-        cupFull.src = "cup_full.png";
-        bottleEmpty.src = "bottle_empty.png";
-        bottleFull.src = "bottle_full.png";
-        waterStream.src = "waterfall-cascade-realistic-water-fall-streams-set.png";
+        cupEmpty.src = "res/cup_empty.png";
+        cupFull.src = "res/cup_full.png";
+        bottleEmpty.src = "res/bottle_empty.png";
+        bottleFull.src = "res/bottle_full.png";
+
 
         let t = 0;
 
