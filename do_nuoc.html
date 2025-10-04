@@ -1,115 +1,283 @@
 <!doctype html>
 <html lang="vi">
-
 <head>
     <meta charset="utf-8" />
     <title>Kéo thả bình để rót vào cốc</title>
     <style>
-        body {
+        * {
             margin: 0;
-            background: #ececec;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        canvas {
-            width: 90vw;
-            height: 90vh;
-            border: 2px solid #2c3e50;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-            display: block;
-            background: #fff;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a202c;
+            margin: 0;
         }
 
         #controls {
-            margin: 10px;
+            display: flex;
+            gap: 12px;
         }
 
         button {
-            margin-right: 10px;
-            padding: 6px 12px;
+            padding: 10px 20px;
             border: none;
-            background: #3498db;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #fff;
-            border-radius: 6px;
+            border-radius: 10px;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
         button:hover {
-            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            cursor: not-allowed !important;
+            opacity: 0.5 !important;
+            transform: none !important;
+        }
+
+        #resetBtn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 2px 8px rgba(245, 87, 108, 0.3);
+        }
+
+        #resetBtn:hover {
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        }
+
+        #btnAddCup {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+        }
+
+        #btnAddCup:hover {
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        canvas {
+            width: 100%;
+            height: 70vh;
+            border-radius: 12px;
+            display: block;
+            background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+            cursor: grab;
+        }
+
+        canvas:active {
+            cursor: grabbing;
         }
 
         #settingsPanel {
-            position: absolute;
-            top: 20px;
+            position: fixed;
+            top: 50%;
             right: 20px;
-            background: #fff;
-            padding: 12px;
-            border: 1px solid #2c3e50;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             max-height: 80vh;
             overflow-y: auto;
+            min-width: 280px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        #settingsPanel h4 {
+            margin: 0 0 16px 0;
+            color: #1a202c;
+            font-size: 18px;
+            font-weight: 600;
         }
 
         #settingsPanel label {
             display: block;
+            margin-top: 12px;
+            color: #4a5568;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        #settingsPanel input,
+        #settingsPanel select {
+            width: 100%;
+            padding: 8px 12px;
             margin-top: 6px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        #settingsPanel input:focus,
+        #settingsPanel select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #settingsPanel select {
+            cursor: pointer;
+        }
+
+        #settingsPanel hr {
+            margin: 16px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        #cupsSettingsContainer {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        #cupsSettingsContainer > div {
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        #cupsSettingsContainer label {
+            margin: 0 0 4px 0;
+            font-size: 12px;
+            color: #718096;
+        }
+
+        #cupsSettingsContainer button {
+            margin-top: 8px;
+            width: 100%;
+            padding: 8px;
+            font-size: 13px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        #applySettings {
+            width: 100%;
+            margin-top: 20px;
         }
     </style>
 </head>
-
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🌊 Trò chơi rót nước</h1>
+            <div id="controls">
+                <button id="resetBtn">↺ Reset</button>
+                <button id="btnAddCup">+ Thêm cốc (1/5)</button>
+                <button id="settingsBtn">⚙ Cài đặt</button>
+            </div>
+        </div>
 
-    <div id="controls">
-        <button id="resetBtn">Reset</button>
-        <button id="btnAddCup">Thêm cốc</button>
-        <button id="settingsBtn">Cài đặt</button>
+        <div class="canvas-wrapper">
+            <canvas id="world"></canvas>
+        </div>
     </div>
 
     <div id="settingsPanel" style="display:none;">
-        <h4>Cài đặt mức nước</h4>
-        <label>Bình: <input type="number" id="bottleFillInput" /></label>
+        <h4>⚙️ Cài đặt</h4>
+        
+        <label>
+            Đơn vị đo
+            <select id="unitSelect">
+                <option value="ml">Mililit (ml)</option>
+                <option value="l">Lít (l)</option>
+            </select>
+        </label>
+        
+        <hr>
+        
+        <h4 style="font-size: 16px; margin-bottom: 12px;">🍶 Bình nước</h4>
+        <label style="font-size: 12px; color: #718096;">
+            Mức nước hiện tại
+            <input type="number" id="bottleFillInput" />
+        </label>
+        <label style="font-size: 12px; color: #718096;">
+            Dung tích tối đa
+            <input type="number" id="bottleCapacityInput" />
+        </label>
+        
+        <hr>
+        
+        <h4 style="font-size: 16px; margin-bottom: 12px;">🥤 Các cốc</h4>
         <div id="cupsSettingsContainer"></div>
-        <button id="applySettings" style="margin-top: 10px;">Áp dụng</button>
+        <button id="applySettings">✓ Áp dụng</button>
     </div>
-
-    <canvas id="world"></canvas>
 
     <script>
         const canvas = document.getElementById("world");
         const ctx = canvas.getContext("2d");
 
+        // Biến toàn cục
+        let unit = "ml";
         let bottle = {
-            x: 550,
-            y: 80,
-            w: 120,
-            h: 220,
-            capacity: 1000,
-            fill: 1000,
-            pouring: false,
-            angle: 0,
-            dragging: false,
-            offsetX: 0,
-            offsetY: 0
+            x: 550, y: 80, w: 120, h: 220,
+            capacity: 1000, fill: 1000,
+            pouring: false, angle: 0,
+            dragging: false, offsetX: 0, offsetY: 0
         };
 
         let cups = [{
-            x: 200,
-            y: 150,
-            w: 120,
-            h: 180,
-            capacity: 400,
-            fill: 0,
-            dragging: false,
-            offsetX: 0,
-            offsetY: 0
+            x: 200, y: 150, w: 120, h: 180,
+            capacity: 400, fill: 0,
+            dragging: false, offsetX: 0, offsetY: 0
         }];
 
-        // Lưu trạng thái ban đầu để reset
         function saveInitialState() {
             return {
                 bottle: JSON.parse(JSON.stringify(bottle)),
@@ -118,54 +286,50 @@
         }
         let initialState = saveInitialState();
 
-        function resizeCanvas() {
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight;
-
-            cups.forEach((cup, i) => {
-                cup.x = canvas.width * 0.2 + i * 150;
-                cup.y = canvas.height * 0.6;
-            });
-
-            bottle.x = canvas.width * 0.6;
-            bottle.y = canvas.height * 0.2;
-        }
-        resizeCanvas();
-        window.addEventListener("resize", resizeCanvas);
-
+        // Images
         const cupEmpty = new Image();
         const cupFull = new Image();
         const bottleEmpty = new Image();
         const bottleFull = new Image();
-        const waterStream = new Image();
-
         let loaded = 0;
+        let t = 0;
 
         function onLoad() {
             loaded++;
-            if (loaded === 5) animate();
+            if (loaded === 4) {
+                animate();
+                updateAddCupButton();
+            }
         }
 
         cupEmpty.onload = () => {
             setSizeKeepRatio(cups[0], cupEmpty, 130);
             onLoad();
         };
-
         cupFull.onload = onLoad;
         bottleEmpty.onload = () => {
             setSizeKeepRatio(bottle, bottleEmpty, 210);
             onLoad();
         };
         bottleFull.onload = onLoad;
-        waterStream.onload = onLoad;
 
         cupEmpty.src = "res/cup_empty.png";
         cupFull.src = "res/cup_full.png";
         bottleEmpty.src = "res/bottle_empty.png";
         bottleFull.src = "res/bottle_full.png";
-        waterStream.src = "res/waterfall.png";
 
-        let t = 0;
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            cups.forEach((cup, i) => {
+                cup.x = canvas.width * 0.2 + i * 150;
+                cup.y = canvas.height * 0.6;
+            });
+            bottle.x = canvas.width * 0.6;
+            bottle.y = canvas.height * 0.2;
+        }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
 
         function setSizeKeepRatio(obj, img, targetHeight) {
             const ratio = img.naturalWidth / img.naturalHeight;
@@ -181,7 +345,7 @@
                 ctx.restore();
             }
 
-            if (typeof cupEmpty !== 'undefined' && cupEmpty.complete && cupEmpty.naturalWidth) {
+            if (cupEmpty.complete) {
                 ctx.drawImage(cupEmpty, cup.x, cup.y, cup.w, cup.h);
             } else {
                 ctx.strokeStyle = "#2c3e50";
@@ -193,18 +357,16 @@
                 const waterHeight = cup.h * percent;
                 ctx.save();
                 ctx.beginPath();
-                const waveHeight = 6;
-                const waveLength = 50;
                 ctx.moveTo(cup.x, cup.y + cup.h - waterHeight);
                 for (let x = 0; x <= cup.w; x += 5) {
-                    const y = Math.sin((x / waveLength) * Math.PI * 2 + t) * waveHeight;
+                    const y = Math.sin((x / 50) * Math.PI * 2 + t) * 6;
                     ctx.lineTo(cup.x + x, cup.y + cup.h - waterHeight + y);
                 }
                 ctx.lineTo(cup.x + cup.w, cup.y + cup.h);
                 ctx.lineTo(cup.x, cup.y + cup.h);
                 ctx.closePath();
                 ctx.clip();
-                if (typeof cupFull !== 'undefined' && cupFull.complete && cupFull.naturalWidth) {
+                if (cupFull.complete) {
                     ctx.drawImage(cupFull, cup.x, cup.y, cup.w, cup.h);
                 } else {
                     ctx.fillStyle = "rgba(0,150,255,0.6)";
@@ -215,7 +377,9 @@
 
             ctx.fillStyle = "#2c3e50";
             ctx.font = "14px sans-serif";
-            ctx.fillText(`Cốc ${index}: ${Math.round(cup.fill)} / ${cup.capacity} ml`, cup.x, cup.y + cup.h + 20);
+            const displayFill = unit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup.fill);
+            const displayCapacity = unit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
+            ctx.fillText(`Cốc ${index + 1}: ${displayFill} / ${displayCapacity} ${unit}`, cup.x, cup.y + cup.h + 20);
         }
 
         function drawBottle() {
@@ -229,11 +393,9 @@
                 const waterHeight = bottle.h * percent;
                 ctx.save();
                 ctx.beginPath();
-                const waveHeight = 5;
-                const waveLength = 40;
                 ctx.moveTo(-bottle.w / 2, -bottle.h / 2 + (bottle.h - waterHeight));
                 for (let x = 0; x <= bottle.w; x += 5) {
-                    const y = Math.sin((x / waveLength) * Math.PI * 2 + t) * waveHeight;
+                    const y = Math.sin((x / 40) * Math.PI * 2 + t) * 5;
                     ctx.lineTo(-bottle.w / 2 + x, -bottle.h / 2 + (bottle.h - waterHeight) + y);
                 }
                 ctx.lineTo(bottle.w / 2, bottle.h / 2);
@@ -245,151 +407,65 @@
             }
             ctx.restore();
 
-            // Vẽ dòng nước cho TẤT CẢ các cốc đang được rót
+            // Vẽ dòng nước
             if (bottle.pouring && bottle.fill > 0) {
                 const cx = bottle.x + bottle.w / 2;
                 const cy = bottle.y + bottle.h / 2;
-                const localX = -bottle.w / 2;
-                const localY = -bottle.h / 2;
-
                 const cos = Math.cos(bottle.angle);
                 const sin = Math.sin(bottle.angle);
+                const mouthX = cx - bottle.w / 2 * cos + bottle.h / 2 * sin;
+                const mouthY = cy - bottle.w / 2 * sin - bottle.h / 2 * cos;
 
-                const mouthX = cx + localX * cos - localY * sin;
-                const mouthY = cy + localX * sin + localY * cos;
-
-                // Vẽ dòng nước cho mỗi cốc gần bình
+                let targetCup = null;
+                let minDist = Infinity;
                 cups.forEach(cup => {
                     if (isNearCup(bottle, cup) && cup.fill < cup.capacity) {
-                        const targetX = cup.x + cup.w / 2;
-                        const targetY = cup.y;
-
-                        const length = targetY - mouthY;
-                        const halfWidth = 10;
-
-                        const gradient = ctx.createLinearGradient(mouthX, mouthY, targetX, targetY);
-                        gradient.addColorStop(0, "rgba(0,150,255,0.8)");
-                        gradient.addColorStop(0.5, "rgba(0,180,255,0.6)");
-                        gradient.addColorStop(1, "rgba(0,200,255,0.2)");
-
-                        ctx.beginPath();
-
-                        for (let y = 0; y <= length; y += 5) {
-                            const progress = y / length;
-                            const xLerp = mouthX + (targetX - mouthX) * progress;
-                            const yLerp = mouthY + (targetY - mouthY) * progress;
-
-                            const offset = Math.sin((y / 25) * Math.PI * 2 + t) * 4;
-                            const x = xLerp + offset - halfWidth;
-                            const yPos = yLerp;
-
-                            if (y === 0) ctx.moveTo(x, yPos);
-                            else ctx.lineTo(x, yPos);
+                        const dist = Math.hypot((bottle.x + bottle.w/2) - (cup.x + cup.w/2), (bottle.y + bottle.h/2) - (cup.y + cup.h/2));
+                        if (dist < minDist) {
+                            minDist = dist;
+                            targetCup = cup;
                         }
-
-                        for (let y = length; y >= 0; y -= 5) {
-                            const progress = y / length;
-                            const xLerp = mouthX + (targetX - mouthX) * progress;
-                            const yLerp = mouthY + (targetY - mouthY) * progress;
-
-                            const offset = Math.sin((y / 25) * Math.PI * 2 + t) * 4;
-                            const x = xLerp + offset + halfWidth;
-                            const yPos = yLerp;
-
-                            ctx.lineTo(x, yPos);
-                        }
-
-                        ctx.closePath();
-                        ctx.fillStyle = gradient;
-                        ctx.fill();
                     }
                 });
+
+                if (targetCup) {
+                    const targetX = targetCup.x + targetCup.w / 2;
+                    const targetY = targetCup.y;
+                    const length = targetY - mouthY;
+                    
+                    const gradient = ctx.createLinearGradient(mouthX, mouthY, targetX, targetY);
+                    gradient.addColorStop(0, "rgba(0,150,255,0.8)");
+                    gradient.addColorStop(0.5, "rgba(0,180,255,0.6)");
+                    gradient.addColorStop(1, "rgba(0,200,255,0.2)");
+
+                    ctx.beginPath();
+                    for (let y = 0; y <= length; y += 5) {
+                        const progress = y / length;
+                        const xLerp = mouthX + (targetX - mouthX) * progress;
+                        const yLerp = mouthY + (targetY - mouthY) * progress;
+                        const offset = Math.sin((y / 25) * Math.PI * 2 + t) * 4;
+                        const x = xLerp + offset - 10;
+                        if (y === 0) ctx.moveTo(x, yLerp);
+                        else ctx.lineTo(x, yLerp);
+                    }
+                    for (let y = length; y >= 0; y -= 5) {
+                        const progress = y / length;
+                        const xLerp = mouthX + (targetX - mouthX) * progress;
+                        const yLerp = mouthY + (targetY - mouthY) * progress;
+                        const offset = Math.sin((y / 25) * Math.PI * 2 + t) * 4;
+                        ctx.lineTo(xLerp + offset + 10, yLerp);
+                    }
+                    ctx.closePath();
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                }
             }
 
             ctx.fillStyle = "#2c3e50";
             ctx.font = "16px sans-serif";
-            ctx.fillText(`Bình: ${Math.round(bottle.fill)} / ${bottle.capacity} ml`, bottle.x - 20, bottle.y + bottle.h + 50);
-        }
-
-        let highlightCupIndex = null;
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            let nearCups = []; // Danh sách các cốc gần bình
-
-            // Kiểm tra các cốc gần và tự động bắt đầu rót
-            cups.forEach((cup, i) => {
-                const near = isNearCup(bottle, cup);
-                if (near) nearCups.push(cup);
-
-                // Auto bắt đầu rót khi thả và ở gần
-                if (!bottle.dragging && near && bottle.fill > 0 && cup.fill < cup.capacity) {
-                    bottle.pouring = true;
-                }
-            });
-
-            // Nếu không còn cốc nào gần hoặc hết nước -> ngắt
-            if (nearCups.length === 0 || bottle.fill <= 0 || bottle.dragging) {
-                bottle.pouring = false;
-            }
-
-            // Rót nước vào TẤT CẢ các cốc gần
-            if (bottle.pouring && nearCups.length > 0) {
-                // Tính toán góc nghiêng trung bình hướng về các cốc
-                let avgTargetX = 0, avgTargetY = 0;
-                nearCups.forEach(cup => {
-                    avgTargetX += cup.x + cup.w / 2;
-                    avgTargetY += cup.y;
-                });
-                avgTargetX /= nearCups.length;
-                avgTargetY /= nearCups.length;
-
-                const cx = bottle.x + bottle.w / 2;
-                const cy = bottle.y + bottle.h / 2;
-                const localX = -bottle.w / 2, localY = -bottle.h / 2;
-                const cos = Math.cos(bottle.angle), sin = Math.sin(bottle.angle);
-                const mouthX = cx + localX * cos - localY * sin;
-                const mouthY = cy + localX * sin + localY * cos;
-
-                let targetAngle = Math.atan2(avgTargetY - mouthY, avgTargetX - mouthX);
-                targetAngle = Math.max(targetAngle, -Math.PI / 2);
-                targetAngle = Math.min(targetAngle, -0.2);
-                bottle.angle += (targetAngle - bottle.angle) * 0.1;
-
-                // Chia đều tốc độ rót cho các cốc
-                const pourSpeed = 2;
-                const pourPerCup = pourSpeed / nearCups.length;
-
-                nearCups.forEach(cup => {
-                    if (cup.fill < cup.capacity && bottle.fill > 0) {
-                        const actualPour = Math.min(pourPerCup, bottle.fill, cup.capacity - cup.fill);
-                        cup.fill += actualPour;
-                        bottle.fill -= actualPour;
-
-                        if (cup.fill >= cup.capacity) {
-                            cup.fill = cup.capacity;
-                        }
-                    }
-                });
-
-                // Ngắt rót nếu hết nước hoặc tất cả cốc đã đầy
-                if (bottle.fill <= 0 || nearCups.every(c => c.fill >= c.capacity)) {
-                    bottle.pouring = false;
-                }
-            }
-
-            // Bình về lại góc đứng khi không rót
-            if (!bottle.pouring) {
-                bottle.angle += (0 - bottle.angle) * 0.1;
-            }
-
-            // Vẽ
-            t += 0.05;
-            cups.forEach((c, i) => drawCup(c, i, nearCups.includes(c)));
-            drawBottle();
-
-            requestAnimationFrame(animate);
+            const displayFill = unit === "l" ? (bottle.fill / 1000).toFixed(2) : Math.round(bottle.fill);
+            const displayCapacity = unit === "l" ? (bottle.capacity / 1000).toFixed(2) : bottle.capacity;
+            ctx.fillText(`Bình: ${displayFill} / ${displayCapacity} ${unit}`, bottle.x - 20, bottle.y + bottle.h + 50);
         }
 
         function isNearCup(bottle, cup) {
@@ -400,31 +476,108 @@
                 bottle.y + bottle.h > cup.y - margin);
         }
 
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            let nearestCup = null;
+            let minDistance = Infinity;
+            cups.forEach(cup => {
+                if (isNearCup(bottle, cup) && cup.fill < cup.capacity) {
+                    const distance = Math.hypot((bottle.x + bottle.w/2) - (cup.x + cup.w/2), (bottle.y + bottle.h/2) - (cup.y + cup.h/2));
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearestCup = cup;
+                    }
+                }
+            });
+
+            if (!bottle.dragging && nearestCup && bottle.fill > 0) {
+                bottle.pouring = true;
+            } else if (bottle.dragging || !nearestCup || bottle.fill <= 0) {
+                bottle.pouring = false;
+            }
+
+            if (bottle.pouring && nearestCup) {
+                const cx = bottle.x + bottle.w / 2;
+                const cy = bottle.y + bottle.h / 2;
+                const cos = Math.cos(bottle.angle);
+                const sin = Math.sin(bottle.angle);
+                const mouthX = cx - bottle.w / 2 * cos + bottle.h / 2 * sin;
+                const mouthY = cy - bottle.w / 2 * sin - bottle.h / 2 * cos;
+
+                const cupTargetX = nearestCup.x + nearestCup.w / 2;
+                const cupTargetY = nearestCup.y;
+
+                let targetAngle = Math.atan2(cupTargetY - mouthY, cupTargetX - mouthX);
+                targetAngle = Math.max(targetAngle, -Math.PI / 2);
+                targetAngle = Math.min(targetAngle, -0.2);
+                bottle.angle += (targetAngle - bottle.angle) * 0.1;
+
+                const pourSpeed = 2;
+                const actualPour = Math.min(pourSpeed, bottle.fill, nearestCup.capacity - nearestCup.fill);
+                nearestCup.fill += actualPour;
+                bottle.fill -= actualPour;
+
+                if (nearestCup.fill >= nearestCup.capacity) {
+                    nearestCup.fill = nearestCup.capacity;
+                    bottle.pouring = false;
+                }
+            }
+
+            if (!bottle.pouring) {
+                bottle.angle += (0 - bottle.angle) * 0.1;
+            }
+
+            t += 0.05;
+            cups.forEach((c, i) => drawCup(c, i, c === nearestCup));
+            drawBottle();
+            requestAnimationFrame(animate);
+        }
+
         function addCup() {
+            if (cups.length >= 5) {
+                alert("⚠️ Chỉ có thể tạo tối đa 5 cốc!");
+                return;
+            }
+            
             const baseCup = cups[0];
+            const lastCup = cups[cups.length - 1];
+            let newX = lastCup.x + lastCup.w + 20;
+            let newY = lastCup.y;
+            
+            if (newX + baseCup.w > canvas.width - 50) {
+                newX = baseCup.x;
+                newY = lastCup.y - baseCup.h - 30;
+            }
 
-            const newCup = {
-                x: 200 + cups.length * 150,
-                y: baseCup.y,
-                w: baseCup.w,
-                h: baseCup.h,
-                capacity: baseCup.capacity,
-                fill: 0,
-                dragging: false,
-                offsetX: 0,
-                offsetY: 0
-            };
-
-            cups.push(newCup);
+            cups.push({
+                x: newX, y: newY, w: baseCup.w, h: baseCup.h,
+                capacity: baseCup.capacity, fill: 0,
+                dragging: false, offsetX: 0, offsetY: 0
+            });
             updateSettingsPanel();
+            updateAddCupButton();
         }
 
         function removeCup(index) {
             if (cups.length > 1) {
                 cups.splice(index, 1);
                 updateSettingsPanel();
+                updateAddCupButton();
             } else {
-                alert("Phải có ít nhất 1 cốc!");
+                alert("⚠️ Phải có ít nhất 1 cốc!");
+            }
+        }
+
+        function updateAddCupButton() {
+            const btn = document.getElementById("btnAddCup");
+            btn.textContent = `+ Thêm cốc (${cups.length}/5)`;
+            if (cups.length >= 5) {
+                btn.disabled = true;
+                btn.style.opacity = "0.5";
+            } else {
+                btn.disabled = false;
+                btn.style.opacity = "1";
             }
         }
 
@@ -434,30 +587,45 @@
             
             cups.forEach((cup, i) => {
                 const div = document.createElement("div");
-                div.style.marginTop = "8px";
-                div.style.display = "flex";
-                div.style.alignItems = "center";
-                div.style.gap = "8px";
                 
                 const label = document.createElement("label");
-                label.textContent = `Cốc ${i}: `;
-                label.style.minWidth = "55px";
+                label.textContent = `Cốc ${i + 1}`;
+                label.style.fontSize = "14px";
+                label.style.fontWeight = "600";
+                label.style.color = "#1a202c";
+                label.style.marginBottom = "8px";
                 
-                const input = document.createElement("input");
-                input.type = "number";
-                input.id = `cup${i}FillInput`;
-                input.value = cup.fill;
-                input.style.width = "80px";
+                const fillLabel = document.createElement("label");
+                fillLabel.textContent = "Mức nước hiện tại:";
                 
-                const deleteBtn = document.createElement("button");
-                deleteBtn.textContent = "Xóa";
-                deleteBtn.style.padding = "4px 8px";
-                deleteBtn.style.fontSize = "12px";
-                deleteBtn.onclick = () => removeCup(i);
+                const fillInput = document.createElement("input");
+                fillInput.type = "number";
+                fillInput.id = `cup${i}FillInput`;
+                fillInput.value = unit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup.fill);
+                fillInput.min = "0";
+                fillInput.max = unit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
+                fillInput.step = unit === "l" ? "0.01" : "1";
+                
+                const capacityLabel = document.createElement("label");
+                capacityLabel.textContent = "Dung tích tối đa:";
+                
+                const capacityInput = document.createElement("input");
+                capacityInput.type = "number";
+                capacityInput.id = `cup${i}CapacityInput`;
+                capacityInput.value = unit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
+                capacityInput.min = "1";
+                capacityInput.step = unit === "l" ? "0.01" : "1";
                 
                 div.appendChild(label);
-                div.appendChild(input);
+                div.appendChild(fillLabel);
+                div.appendChild(fillInput);
+                div.appendChild(capacityLabel);
+                div.appendChild(capacityInput);
+                
                 if (cups.length > 1) {
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.textContent = "🗑 Xóa cốc";
+                    deleteBtn.onclick = () => removeCup(i);
                     div.appendChild(deleteBtn);
                 }
                 
@@ -465,11 +633,76 @@
             });
         }
 
+        // Event Listeners
         document.getElementById("btnAddCup").addEventListener("click", addCup);
 
+        document.getElementById("resetBtn").addEventListener("click", () => {
+            bottle = JSON.parse(JSON.stringify(initialState.bottle));
+            cups = JSON.parse(JSON.stringify(initialState.cups));
+            if (bottleEmpty.complete) setSizeKeepRatio(bottle, bottleEmpty, 210);
+            if (cupEmpty.complete) cups.forEach(c => setSizeKeepRatio(c, cupEmpty, 130));
+            updateSettingsPanel();
+            updateAddCupButton();
+        });
+
+        document.getElementById("settingsBtn").addEventListener("click", () => {
+            const panel = document.getElementById("settingsPanel");
+            const isOpen = panel.style.display !== "none";
+            panel.style.display = isOpen ? "none" : "block";
+            
+            if (!isOpen) {
+                document.getElementById("unitSelect").value = unit;
+                document.getElementById("bottleFillInput").value = unit === "l" ? (bottle.fill / 1000).toFixed(2) : Math.round(bottle.fill);
+                document.getElementById("bottleFillInput").step = unit === "l" ? "0.01" : "1";
+                document.getElementById("bottleCapacityInput").value = unit === "l" ? (bottle.capacity / 1000).toFixed(2) : bottle.capacity;
+                document.getElementById("bottleCapacityInput").step = unit === "l" ? "0.01" : "1";
+                updateSettingsPanel();
+            }
+        });
+
+        document.getElementById("unitSelect").addEventListener("change", (e) => {
+            unit = e.target.value;
+            document.getElementById("bottleFillInput").value = unit === "l" ? (bottle.fill / 1000).toFixed(2) : Math.round(bottle.fill);
+            document.getElementById("bottleFillInput").step = unit === "l" ? "0.01" : "1";
+            document.getElementById("bottleCapacityInput").value = unit === "l" ? (bottle.capacity / 1000).toFixed(2) : bottle.capacity;
+            document.getElementById("bottleCapacityInput").step = unit === "l" ? "0.01" : "1";
+            updateSettingsPanel();
+        });
+
+        document.getElementById("applySettings").addEventListener("click", () => {
+            const bottleFillValue = parseFloat(document.getElementById("bottleFillInput").value);
+            const bottleCapacityValue = parseFloat(document.getElementById("bottleCapacityInput").value);
+            
+            if (!isNaN(bottleCapacityValue) && bottleCapacityValue > 0) {
+                bottle.capacity = unit === "l" ? bottleCapacityValue * 1000 : bottleCapacityValue;
+            }
+            if (!isNaN(bottleFillValue)) {
+                bottle.fill = Math.max(0, Math.min(bottle.capacity, unit === "l" ? bottleFillValue * 1000 : bottleFillValue));
+            }
+            
+            cups.forEach((c, i) => {
+                const fillInput = document.getElementById(`cup${i}FillInput`);
+                const capacityInput = document.getElementById(`cup${i}CapacityInput`);
+                
+                if (capacityInput) {
+                    const capacityVal = parseFloat(capacityInput.value);
+                    if (!isNaN(capacityVal) && capacityVal > 0) {
+                        c.capacity = unit === "l" ? capacityVal * 1000 : capacityVal;
+                    }
+                }
+                if (fillInput) {
+                    const fillVal = parseFloat(fillInput.value);
+                    if (!isNaN(fillVal)) {
+                        c.fill = Math.max(0, Math.min(c.capacity, unit === "l" ? fillVal * 1000 : fillVal));
+                    }
+                }
+            });
+            
+            document.getElementById("settingsPanel").style.display = "none";
+        });
+
         canvas.addEventListener("mousedown", e => {
-            const mx = e.offsetX,
-                my = e.offsetY;
+            const mx = e.offsetX, my = e.offsetY;
             if (mx > bottle.x && mx < bottle.x + bottle.w && my > bottle.y && my < bottle.y + bottle.h) {
                 bottle.dragging = true;
                 bottle.offsetX = mx - bottle.x;
@@ -488,8 +721,7 @@
         });
 
         canvas.addEventListener("mousemove", e => {
-            const mx = e.offsetX,
-                my = e.offsetY;
+            const mx = e.offsetX, my = e.offsetY;
             if (bottle.dragging) {
                 bottle.x = mx - bottle.offsetX;
                 bottle.y = my - bottle.offsetY;
@@ -506,45 +738,6 @@
             bottle.dragging = false;
             cups.forEach(c => c.dragging = false);
         });
-
-        document.getElementById("resetBtn").addEventListener("click", () => {
-            bottle = JSON.parse(JSON.stringify(initialState.bottle));
-            cups = JSON.parse(JSON.stringify(initialState.cups));
-
-            if (bottleEmpty.complete) setSizeKeepRatio(bottle, bottleEmpty, 210);
-            if (cupEmpty.complete) {
-                cups.forEach(c => setSizeKeepRatio(c, cupEmpty, 130));
-            }
-            
-            updateSettingsPanel();
-        });
-
-        document.getElementById("settingsBtn").addEventListener("click", () => {
-            const panel = document.getElementById("settingsPanel");
-            const isOpen = panel.style.display !== "none";
-            panel.style.display = isOpen ? "none" : "block";
-            
-            if (!isOpen) {
-                document.getElementById("bottleFillInput").value = bottle.fill;
-                updateSettingsPanel();
-            }
-        });
-
-        document.getElementById("applySettings").addEventListener("click", () => {
-            const v = parseInt(document.getElementById("bottleFillInput").value);
-            if (!isNaN(v)) bottle.fill = Math.max(0, Math.min(bottle.capacity, v));
-            
-            cups.forEach((c, i) => {
-                const inp = document.getElementById(`cup${i}FillInput`);
-                if (inp) {
-                    const val = parseInt(inp.value);
-                    if (!isNaN(val)) c.fill = Math.max(0, Math.min(c.capacity, val));
-                }
-            });
-            
-            document.getElementById("settingsPanel").style.display = "none";
-        });
     </script>
 </body>
-
 </html>
