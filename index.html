@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Kéo thả bình để rót vào cốc</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a202c;
+            margin: 0;
+        }
+
+        #controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            cursor: not-allowed !important;
+            opacity: 0.5 !important;
+            transform: none !important;
+        }
+
+        #resetBtn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 2px 8px rgba(245, 87, 108, 0.3);
+        }
+
+        #resetBtn:hover {
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        }
+
+        #btnAddCup {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+        }
+
+        #btnAddCup:hover {
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        canvas {
+            width: 100%;
+            height: 70vh;
+            border-radius: 12px;
+            display: block;
+            background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+            cursor: grab;
+        }
+
+        canvas:active {
+            cursor: grabbing;
+        }
+
+        #settingsPanel {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            max-height: 80vh;
+            overflow-y: auto;
+            min-width: 280px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        #settingsPanel h4 {
+            margin: 0 0 16px 0;
+            color: #1a202c;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        #settingsPanel label {
+            display: block;
+            margin-top: 12px;
+            color: #4a5568;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        #settingsPanel input,
+        #settingsPanel select {
+            width: 100%;
+            padding: 8px 12px;
+            margin-top: 6px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        #settingsPanel input:focus,
+        #settingsPanel select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #settingsPanel select {
+            cursor: pointer;
+        }
+
+        #settingsPanel hr {
+            margin: 16px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        #cupsSettingsContainer {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        #cupsSettingsContainer > div {
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        #cupsSettingsContainer label {
+            margin: 0 0 4px 0;
+            font-size: 12px;
+            color: #718096;
+        }
+
+        #cupsSettingsContainer button {
+            margin-top: 8px;
+            width: 100%;
+            padding: 8px;
+            font-size: 13px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        #applySettings {
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌊 Trò chơi rót nước</h1>
+            <div id="controls">
+                <button id="resetBtn">↺ Reset</button>
+                <button id="btnAddCup">+ Thêm cốc (1/5)</button>
+                <button id="settingsBtn">⚙ Cài đặt</button>
+            </div>
+        </div>
+
+        <div class="canvas-wrapper">
+            <canvas id="world"></canvas>
+        </div>
+    </div>
+
+    <div id="settingsPanel" style="display:none;">
+        <h4>⚙️ Cài đặt</h4>
+        
+        <label>
+            Đơn vị đo
+            <select id="unitSelect">
+                <option value="ml">Mililit (ml)</option>
+                <option value="l">Lít (l)</option>
+            </select>
+        </label>
+        
+        <hr>
+        
+        <h4 style="font-size: 16px; margin-bottom: 12px;">🍶 Bình nước</h4>
+        <label style="font-size: 12px; color: #718096;">
+            Mức nước hiện tại
+            <input type="number" id="bottleFillInput" />
+        </label>
+        <label style="font-size: 12px; color: #718096;">
+            Dung tích tối đa
+            <input type="number" id="bottleCapacityInput" />
+        </label>
+        
+        <hr>
+        
+        <h4 style="font-size: 16px; margin-bottom: 12px;">🥤 Các cốc</h4>
+        <div id="cupsSettingsContainer"></div>
+        <button id="applySettings">✓ Áp dụng</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("world");
+        const ctx = canvas.getContext("2d");
+
+        // Biến toàn cục
+        let unit = "ml";
+        let bottle = {
+            x: 550, y: 80, w: 120, h: 220,
+            capacity: 1000, fill: 1000,
+            pouring: false, angle: 0,
+            dragging: false, offsetX: 0, offsetY: 0
+        };
+
+        let cups = [{
+            x: 200, y: 150, w: 120, h: 180,
+            capacity: 400, fill: 0,
+            dragging: false, offsetX: 0, offsetY: 0
+        }];
+
+        function saveInitialState() {
+            return {
+                bottle: JSON.parse(JSON.stringify(bottle)),
+                cups: JSON.parse(JSON.stringify(cups))
+            };
+        }
+        let initialState = saveInitialState();
+
+        // Images
+        const cupEmpty = new Image();
+        const cupFull = new Image();
+        const bottleEmpty = new Image();
+        const bottleFull = new Image();
+        let loaded = 0;
+        let t = 0;
+
+        function onLoad() {
+            loaded++;
+            if (loaded === 4) {
+                animate();
+                updateAddCupButton();
+            }
+        }
+
+        cupEmpty.onload = () => {
+            setSizeKeepRatio(cups[0], cupEmpty, 130);
+            onLoad();
+        };
+        cupFull.onload = onLoad;
+        bottleEmpty.onload = () => {
+            setSizeKeepRatio(bottle, bottleEmpty, 210);
+            onLoad();
+        };
+        bottleFull.onload = onLoad;
+
+        cupEmpty.src = "res/cup_empty.png?v=20251005223851";
+        cupFull.src = "res/cup_full.png?v=20251005223851";
+        bottleEmpty.src = "res/bottle_empty.png?v=20251005223851";
+        bottleFull.src = "res/bottle_full.png?v=20251005223851";
+
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            cups.forEach((cup, i) => {
+                cup.x = canvas.width * 0.2 + i * 150;
+                cup.y = canvas.height * 0.6;
+            });
+            bottle.x = canvas.width * 0.6;
+            bottle.y = canvas.height * 0.2;
+        }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+
+        function setSizeKeepRatio(obj, img, targetHeight) {
+            const ratio = img.naturalWidth / img.naturalHeight;
+            obj.h = targetHeight;
+            obj.w = obj.h * ratio;
+        }
+
+        function drawCup(cup, index, highlight = false) {
+            if (highlight) {
+                ctx.save();
+                ctx.fillStyle = "rgba(0,200,255,0.15)";
+                ctx.fillRect(cup.x - 10, cup.y - 10, cup.w + 20, cup.h + 20);
+                ctx.restore();
+            }
+
+            if (cupEmpty.complete) {
+                ctx.drawImage(cupEmpty, cup.x, cup.y, cup.w, cup.h);
+            } else {
+                ctx.strokeStyle = "#2c3e50";
+                ctx.strokeRect(cup.x, cup.y, cup.w, cup.h);
+            }
+
+            if (cup.fill > 0) {
+                const percent = cup.fill / cup.capacity;
+                const waterHeight = cup.h * percent;
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(cup.x, cup.y + cup.h - waterHeight);
+                for (let x = 0; x <= cup.w; x += 5) {
+                    const y = Math.sin((x / 50) * Math.PI * 2 + t) * 6;
+                    ctx.lineTo(cup.x + x, cup.y + cup.h - waterHeight + y);
+                }
+                ctx.lineTo(cup.x + cup.w, cup.y + cup.h);
+                ctx.lineTo(cup.x, cup.y + cup.h);
+                ctx.closePath();
+                ctx.clip();
+                if (cupFull.complete) {
+                    ctx.drawImage(cupFull, cup.x, cup.y, cup.w, cup.h);
+                } else {
+                    ctx.fillStyle = "rgba(0,150,255,0.6)";
+                    ctx.fillRect(cup.x, cup.y + cup.h - waterHeight, cup.w, waterHeight);
+                }
+                ctx.restore();
+            }
+
+            ctx.fillStyle = "#2c3e50";
+            ctx.font = "14px sans-serif";
+            const displayFill = unit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup.fill);
+            const displayCapacity = unit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
+            ctx.fillText(`Cốc ${index + 1}: ${displayFill} / ${displayCapacity} ${unit}`, cup.x, cup.y + cup.h + 20);
+        }
+
+        function drawBottle() {
+            ctx.save();
+            ctx.translate(bottle.x + bottle.w / 2, bottle.y + bottle.h / 2);
+            ctx.rotate(bottle.angle);
+            ctx.drawImage(bottleEmpty, -bottle.w / 2, -bottle.h / 2, bottle.w, bottle.h);
+
+            if (bottle.fill > 0) {
+                const percent = bottle.fill / bottle.capacity;
+                const waterHeight = bottle.h * percent;
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(-bottle.w / 2, -bottle.h / 2 + (bottle.h - waterHeight));
+                for (let x = 0; x <= bottle.w; x += 5) {
+                    const y = Math.sin((x / 40) * Math.PI * 2 + t) * 5;
+                    ctx.lineTo(-bottle.w / 2 + x, -bottle.h / 2 + (bottle.h - waterHeight) + y);
+                }
+                ctx.lineTo(bottle.w / 2, bottle.h / 2);
+                ctx.lineTo(-bottle.w / 2, bottle.h / 2);
+                ctx.closePath();
+                ctx.clip();
+                ctx.drawImage(bottleFull, -bottle.w / 2, -bottle.h / 2, bottle.w, bottle.h);
+                ctx.restore();
+            }
+            ctx.restore();
+
+            // Vẽ dòng nước
+            if (bottle.pouring && bottle.fill > 0) {
+                const cx = bottle.x + bottle.w / 2;
+                const cy = bottle.y + bottle.h / 2;
+                const cos = Math.cos(bottle.angle);
+                const sin = Math.sin(bottle.angle);
+                const mouthX = cx - bottle.w / 2 * cos + bottle.h / 2 * sin;
+                const mouthY = cy - bottle.w / 2 * sin - bottle.h / 2 * cos;
+
+                let targetCup = null;
+                let minDist = Infinity;
+                cups.forEach(cup => {
+                    if (isNearCup(bottle, cup) && cup.fill < cup.capacity) {
+                        const dist = Math.hypot((bottle.x + bottle.w/2) - (cup.x + cup.w/2), (bottle.y + bottle.h/2) - (cup.y + cup.h/2));
+                        if (dist < minDist) {
+                            minDist = dist;
+                            targetCup = cup;
+                        }
+                    }
+                });
+
+                if (targetCup) {
+                    const targetX = targetCup.x + targetCup.w / 2;
+                    const targetY = targetCup.y;
+                    const length = targetY - mouthY;
+                    
+                    const gradient = ctx.createLinearGradient(mouthX, mouthY, targetX, targetY);
+                    gradient.addColorStop(0, "rgba(0,150,255,0.8)");
+                    gradient.addColorStop(0.5, "rgba(0,180,255,0.6)");
+                    gradient.addColorStop(1, "rgba(0,200,255,0.2)");
+
+                    ctx.beginPath();
+                    for (let y = 0; y <= length; y += 5) {
+                        const progress = y / length;
+                        const xLerp = mouthX + (targetX - mouthX) * progress;
+                        const yLerp = mouthY + (targetY - mouthY) * progress;
+                        const offset = Math.sin((y / 25) * Math.PI * 2 + t) * 4;
+                        const x = xLerp + offset - 10;
+                        if (y === 0) ctx.moveTo(x, yLerp);
+                        else ctx.lineTo(x, yLerp);
+                    }
+                    for (let y = length; y >= 0; y -= 5) {
+                        const progress = y / length;
+                        const xLerp = mouthX + (targetX - mouthX) * progress;
+                        const yLerp = mouthY + (targetY - mouthY) * progress;
+                        const offset = Math.sin((y / 25) * Math.PI * 2 + t) * 4;
+                        ctx.lineTo(xLerp + offset + 10, yLerp);
+                    }
+                    ctx.closePath();
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                }
+            }
+
+            ctx.fillStyle = "#2c3e50";
+            ctx.font = "16px sans-serif";
+            const displayFill = unit === "l" ? (bottle.fill / 1000).toFixed(2) : Math.round(bottle.fill);
+            const displayCapacity = unit === "l" ? (bottle.capacity / 1000).toFixed(2) : bottle.capacity;
+            ctx.fillText(`Bình: ${displayFill} / ${displayCapacity} ${unit}`, bottle.x - 20, bottle.y + bottle.h + 50);
+        }
+
+        function isNearCup(bottle, cup) {
+            const margin = 50;
+            return (bottle.x < cup.x + cup.w + margin &&
+                bottle.x + bottle.w > cup.x - margin &&
+                bottle.y < cup.y + cup.h + margin &&
+                bottle.y + bottle.h > cup.y - margin);
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            let nearestCup = null;
+            let minDistance = Infinity;
+            cups.forEach(cup => {
+                if (isNearCup(bottle, cup) && cup.fill < cup.capacity) {
+                    const distance = Math.hypot((bottle.x + bottle.w/2) - (cup.x + cup.w/2), (bottle.y + bottle.h/2) - (cup.y + cup.h/2));
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearestCup = cup;
+                    }
+                }
+            });
+
+            if (!bottle.dragging && nearestCup && bottle.fill > 0) {
+                bottle.pouring = true;
+            } else if (bottle.dragging || !nearestCup || bottle.fill <= 0) {
+                bottle.pouring = false;
+            }
+
+            if (bottle.pouring && nearestCup) {
+                const cx = bottle.x + bottle.w / 2;
+                const cy = bottle.y + bottle.h / 2;
+                const cos = Math.cos(bottle.angle);
+                const sin = Math.sin(bottle.angle);
+                const mouthX = cx - bottle.w / 2 * cos + bottle.h / 2 * sin;
+                const mouthY = cy - bottle.w / 2 * sin - bottle.h / 2 * cos;
+
+                const cupTargetX = nearestCup.x + nearestCup.w / 2;
+                const cupTargetY = nearestCup.y;
+
+                let targetAngle = Math.atan2(cupTargetY - mouthY, cupTargetX - mouthX);
+                targetAngle = Math.max(targetAngle, -Math.PI / 2);
+                targetAngle = Math.min(targetAngle, -0.2);
+                bottle.angle += (targetAngle - bottle.angle) * 0.1;
+
+                const pourSpeed = 2;
+                const actualPour = Math.min(pourSpeed, bottle.fill, nearestCup.capacity - nearestCup.fill);
+                nearestCup.fill += actualPour;
+                bottle.fill -= actualPour;
+
+                if (nearestCup.fill >= nearestCup.capacity) {
+                    nearestCup.fill = nearestCup.capacity;
+                    bottle.pouring = false;
+                }
+            }
+
+            if (!bottle.pouring) {
+                bottle.angle += (0 - bottle.angle) * 0.1;
+            }
+
+            t += 0.05;
+            cups.forEach((c, i) => drawCup(c, i, c === nearestCup));
+            drawBottle();
+            requestAnimationFrame(animate);
+        }
+
+        function addCup() {
+            if (cups.length >= 5) {
+                alert("⚠️ Chỉ có thể tạo tối đa 5 cốc!");
+                return;
+            }
+            
+            const baseCup = cups[0];
+            const lastCup = cups[cups.length - 1];
+            let newX = lastCup.x + lastCup.w + 20;
+            let newY = lastCup.y;
+            
+            if (newX + baseCup.w > canvas.width - 50) {
+                newX = baseCup.x;
+                newY = lastCup.y - baseCup.h - 30;
+            }
+
+            cups.push({
+                x: newX, y: newY, w: baseCup.w, h: baseCup.h,
+                capacity: baseCup.capacity, fill: 0,
+                dragging: false, offsetX: 0, offsetY: 0
+            });
+            updateSettingsPanel();
+            updateAddCupButton();
+        }
+
+        function removeCup(index) {
+            if (cups.length > 1) {
+                cups.splice(index, 1);
+                updateSettingsPanel();
+                updateAddCupButton();
+            } else {
+                alert("⚠️ Phải có ít nhất 1 cốc!");
+            }
+        }
+
+        function updateAddCupButton() {
+            const btn = document.getElementById("btnAddCup");
+            btn.textContent = `+ Thêm cốc (${cups.length}/5)`;
+            if (cups.length >= 5) {
+                btn.disabled = true;
+                btn.style.opacity = "0.5";
+            } else {
+                btn.disabled = false;
+                btn.style.opacity = "1";
+            }
+        }
+
+        function updateSettingsPanel() {
+            const container = document.getElementById("cupsSettingsContainer");
+            container.innerHTML = "";
+            
+            cups.forEach((cup, i) => {
+                const div = document.createElement("div");
+                
+                const label = document.createElement("label");
+                label.textContent = `Cốc ${i + 1}`;
+                label.style.fontSize = "14px";
+                label.style.fontWeight = "600";
+                label.style.color = "#1a202c";
+                label.style.marginBottom = "8px";
+                
+                const fillLabel = document.createElement("label");
+                fillLabel.textContent = "Mức nước hiện tại:";
+                
+                const fillInput = document.createElement("input");
+                fillInput.type = "number";
+                fillInput.id = `cup${i}FillInput`;
+                fillInput.value = unit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup.fill);
+                fillInput.min = "0";
+                fillInput.max = unit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
+                fillInput.step = unit === "l" ? "0.01" : "1";
+                
+                const capacityLabel = document.createElement("label");
+                capacityLabel.textContent = "Dung tích tối đa:";
+                
+                const capacityInput = document.createElement("input");
+                capacityInput.type = "number";
+                capacityInput.id = `cup${i}CapacityInput`;
+                capacityInput.value = unit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
+                capacityInput.min = "1";
+                capacityInput.step = unit === "l" ? "0.01" : "1";
+                
+                div.appendChild(label);
+                div.appendChild(fillLabel);
+                div.appendChild(fillInput);
+                div.appendChild(capacityLabel);
+                div.appendChild(capacityInput);
+                
+                if (cups.length > 1) {
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.textContent = "🗑 Xóa cốc";
+                    deleteBtn.onclick = () => removeCup(i);
+                    div.appendChild(deleteBtn);
+                }
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Event Listeners
+        document.getElementById("btnAddCup").addEventListener("click", addCup);
+
+        document.getElementById("resetBtn").addEventListener("click", () => {
+            bottle = JSON.parse(JSON.stringify(initialState.bottle));
+            cups = JSON.parse(JSON.stringify(initialState.cups));
+            if (bottleEmpty.complete) setSizeKeepRatio(bottle, bottleEmpty, 210);
+            if (cupEmpty.complete) cups.forEach(c => setSizeKeepRatio(c, cupEmpty, 130));
+            updateSettingsPanel();
+            updateAddCupButton();
+        });
+
+        document.getElementById("settingsBtn").addEventListener("click", () => {
+            const panel = document.getElementById("settingsPanel");
+            const isOpen = panel.style.display !== "none";
+            panel.style.display = isOpen ? "none" : "block";
+            
+            if (!isOpen) {
+                document.getElementById("unitSelect").value = unit;
+                document.getElementById("bottleFillInput").value = unit === "l" ? (bottle.fill / 1000).toFixed(2) : Math.round(bottle.fill);
+                document.getElementById("bottleFillInput").step = unit === "l" ? "0.01" : "1";
+                document.getElementById("bottleCapacityInput").value = unit === "l" ? (bottle.capacity / 1000).toFixed(2) : bottle.capacity;
+                document.getElementById("bottleCapacityInput").step = unit === "l" ? "0.01" : "1";
+                updateSettingsPanel();
+            }
+        });
+
+        document.getElementById("unitSelect").addEventListener("change", (e) => {
+            unit = e.target.value;
+            document.getElementById("bottleFillInput").value = unit === "l" ? (bottle.fill / 1000).toFixed(2) : Math.round(bottle.fill);
+            document.getElementById("bottleFillInput").step = unit === "l" ? "0.01" : "1";
+            document.getElementById("bottleCapacityInput").value = unit === "l" ? (bottle.capacity / 1000).toFixed(2) : bottle.capacity;
+            document.getElementById("bottleCapacityInput").step = unit === "l" ? "0.01" : "1";
+            updateSettingsPanel();
+        });
+
+        document.getElementById("applySettings").addEventListener("click", () => {
+            const bottleFillValue = parseFloat(document.getElementById("bottleFillInput").value);
+            const bottleCapacityValue = parseFloat(document.getElementById("bottleCapacityInput").value);
+            
+            if (!isNaN(bottleCapacityValue) && bottleCapacityValue > 0) {
+                bottle.capacity = unit === "l" ? bottleCapacityValue * 1000 : bottleCapacityValue;
+            }
+            if (!isNaN(bottleFillValue)) {
+                bottle.fill = Math.max(0, Math.min(bottle.capacity, unit === "l" ? bottleFillValue * 1000 : bottleFillValue));
+            }
+            
+            cups.forEach((c, i) => {
+                const fillInput = document.getElementById(`cup${i}FillInput`);
+                const capacityInput = document.getElementById(`cup${i}CapacityInput`);
+                
+                if (capacityInput) {
+                    const capacityVal = parseFloat(capacityInput.value);
+                    if (!isNaN(capacityVal) && capacityVal > 0) {
+                        c.capacity = unit === "l" ? capacityVal * 1000 : capacityVal;
+                    }
+                }
+                if (fillInput) {
+                    const fillVal = parseFloat(fillInput.value);
+                    if (!isNaN(fillVal)) {
+                        c.fill = Math.max(0, Math.min(c.capacity, unit === "l" ? fillVal * 1000 : fillVal));
+                    }
+                }
+            });
+            
+            document.getElementById("settingsPanel").style.display = "none";
+        });
+
+        canvas.addEventListener("mousedown", e => {
+            const mx = e.offsetX, my = e.offsetY;
+            if (mx > bottle.x && mx < bottle.x + bottle.w && my > bottle.y && my < bottle.y + bottle.h) {
+                bottle.dragging = true;
+                bottle.offsetX = mx - bottle.x;
+                bottle.offsetY = my - bottle.y;
+                return;
+            }
+            for (let i = cups.length - 1; i >= 0; i--) {
+                const c = cups[i];
+                if (mx > c.x && mx < c.x + c.w && my > c.y && my < c.y + c.h) {
+                    c.dragging = true;
+                    c.offsetX = mx - c.x;
+                    c.offsetY = my - c.y;
+                    break;
+                }
+            }
+        });
+
+        canvas.addEventListener("mousemove", e => {
+            const mx = e.offsetX, my = e.offsetY;
+            if (bottle.dragging) {
+                bottle.x = mx - bottle.offsetX;
+                bottle.y = my - bottle.offsetY;
+            }
+            cups.forEach(c => {
+                if (c.dragging) {
+                    c.x = mx - c.offsetX;
+                    c.y = my - c.offsetY;
+                }
+            });
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            bottle.dragging = false;
+            cups.forEach(c => c.dragging = false);
+        });
+    </script>
+</body>
+</html>
