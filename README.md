@@ -46,7 +46,7 @@ Dự án được phát triển bằng **HTML, CSS và JavaScript**, tập trung
 ### 🖼️ Ảnh minh họa
 
 <p align="center">
-  <img src="https://github.com/NguyenNhan209/Water-drop-simulator/assets/demo.png" alt="Screenshot" width="500"/>
+<img width="1557" height="746" alt="image" src="https://github.com/user-attachments/assets/df8cf03b-c440-40c1-9457-510af2f1adda" />
 </p>
 
 > *(Nếu bạn có ảnh thật hoặc video, có thể thêm vào thư mục `/assets` rồi đổi link trên.)*
