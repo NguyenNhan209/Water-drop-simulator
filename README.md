@@ -2,7 +2,7 @@
 <h3 align="center">Mô phỏng giọt nước – Dự án Khoa học kỹ thuật 2025</h3>
 
 <p align="center">
-  <img src="https://github.com/NguyenNhan209/Water-drop-simulator/assets/demo-waterdrop.gif" alt="Water Drop Animation" width="400"/>
+<img width="1557" height="746" alt="image" src="https://github.com/user-attachments/assets/df8cf03b-c440-40c1-9457-510af2f1adda" />
 </p>
 
 ---
