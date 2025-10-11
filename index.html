@@ -313,10 +313,10 @@
         };
         bottleFull.onload = onLoad;
 
-        cupEmpty.src = "res/cup_empty.png?v=20251006191446";
-        cupFull.src = "res/cup_full.png?v=20251006191446";
-        bottleEmpty.src = "res/bottle_empty.png?v=20251006191446";
-        bottleFull.src = "res/bottle_full.png?v=20251006191446";
+        cupEmpty.src = "res/cup_empty.png?v=20251011191527";
+        cupFull.src = "res/cup_full.png?v=20251011191527";
+        bottleEmpty.src = "res/bottle_empty.png?v=20251011191527";
+        bottleFull.src = "res/bottle_full.png?v=20251011191527";
 
         function resizeCanvas() {
             canvas.width = canvas.clientWidth;
@@ -542,7 +542,7 @@
             
             const baseCup = cups[0];
             const lastCup = cups[cups.length - 1];
-            let newX = lastCup.x + lastCup.w + 20;
+            let newX = lastCup.x + lastCup.w + 35;
             let newY = lastCup.y;
             
             if (newX + baseCup.w > canvas.width - 50) {
