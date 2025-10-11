@@ -180,17 +180,55 @@
         }
 
         #cupsSettingsContainer {
-            margin-top: 16px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
-        #cupsSettingsContainer > div {
+        .cup-item {
             padding: 12px;
             background: #f7fafc;
             border-radius: 10px;
             border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cup-item:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .cup-item.expanded {
+            background: #fff;
+            border-color: #667eea;
+            cursor: default;
+        }
+
+        .cup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            color: #1a202c;
+            font-size: 14px;
+            padding: 4px 0;
+        }
+
+        .cup-details {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .cup-item.expanded .cup-details {
+            display: block;
+        }
+
+        .cup-item.expanded .cup-header {
+            font-weight: 600;
+            color: #667eea;
         }
 
         #cupsSettingsContainer label {
@@ -199,17 +237,12 @@
             color: #718096;
         }
 
-        #cupsSettingsContainer button {
+        #cupsSettingsContainer .delete-btn {
             margin-top: 8px;
             width: 100%;
             padding: 8px;
             font-size: 13px;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-
-        #applySettings {
-            width: 100%;
-            margin-top: 20px;
         }
     </style>
 </head>
@@ -230,7 +263,12 @@
     </div>
 
     <div id="settingsPanel" style="display:none;">
-        <h4>⚙️ Cài đặt</h4>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h4 style="margin: 0;">⚙️ Cài đặt</h4>
+            <button id="applySettings" style="width: auto; padding: 8px 16px; font-size: 13px;">✓ Áp dụng</button>
+        </div>
+        
+        <hr>
         
         <label>
             Đơn vị đo
@@ -242,21 +280,26 @@
         
         <hr>
         
-        <h4 style="font-size: 16px; margin-bottom: 12px;">🍶 Bình nước</h4>
-        <label style="font-size: 12px; color: #718096;">
-            Mức nước hiện tại
-            <input type="number" id="bottleFillInput" />
+        <label style="font-size: 14px; font-weight: 600; color: #1a202c; margin-bottom: 8px;">
+            🍶 Bình nước
         </label>
-        <label style="font-size: 12px; color: #718096;">
-            Dung tích tối đa
-            <input type="number" id="bottleCapacityInput" />
-        </label>
+        <div style="padding: 12px; background: #f7fafc; border-radius: 10px; border: 1px solid #e2e8f0; margin-top: 8px;">
+            <label style="font-size: 12px; color: #718096;">
+                Mức nước hiện tại
+                <input type="number" id="bottleFillInput" />
+            </label>
+            <label style="font-size: 12px; color: #718096;">
+                Dung tích tối đa
+                <input type="number" id="bottleCapacityInput" />
+            </label>
+        </div>
         
         <hr>
         
-        <h4 style="font-size: 16px; margin-bottom: 12px;">🥤 Các cốc</h4>
-        <div id="cupsSettingsContainer"></div>
-        <button id="applySettings">✓ Áp dụng</button>
+        <label style="font-size: 14px; font-weight: 600; color: #1a202c; margin-bottom: 8px;">
+            🥤 Các cốc
+        </label>
+        <div id="cupsSettingsContainer" style="margin-top: 8px;"></div>
     </div>
 
     <script>
@@ -313,10 +356,10 @@
         };
         bottleFull.onload = onLoad;
 
-        cupEmpty.src = "res/cup_empty.png?v=20251011191609";
-        cupFull.src = "res/cup_full.png?v=20251011191609";
-        bottleEmpty.src = "res/bottle_empty.png?v=20251011191609";
-        bottleFull.src = "res/bottle_full.png?v=20251011191609";
+        cupEmpty.src = "res/cup_empty.png?v=20251011194006";
+        cupFull.src = "res/cup_full.png?v=20251011194006";
+        bottleEmpty.src = "res/bottle_empty.png?v=20251011194006";
+        bottleFull.src = "res/bottle_full.png?v=20251011194006";
 
         function resizeCanvas() {
             canvas.width = canvas.clientWidth;
@@ -587,13 +630,32 @@
             
             cups.forEach((cup, i) => {
                 const div = document.createElement("div");
+                div.className = "cup-item";
                 
-                const label = document.createElement("label");
-                label.textContent = `Cốc ${i + 1}`;
-                label.style.fontSize = "14px";
-                label.style.fontWeight = "600";
-                label.style.color = "#1a202c";
-                label.style.marginBottom = "8px";
+                // Header với thông tin tóm tắt
+                const header = document.createElement("div");
+                header.className = "cup-header";
+                header.style.cursor = "pointer";
+                header.style.display = "flex";
+                header.style.justifyContent = "space-between";
+                header.style.alignItems = "center";
+                
+                const cupName = document.createElement("span");
+                cupName.textContent = `Cốc ${i + 1}`;
+                
+                const cupInfo = document.createElement("span");
+                cupInfo.style.fontSize = "13px";
+                cupInfo.style.color = "#718096";
+                const displayFill = unit === "l" ? (cup.fill / 1000).toFixed(1) : Math.round(cup.fill);
+                const displayCapacity = unit === "l" ? (cup.capacity / 1000).toFixed(1) : cup.capacity;
+                cupInfo.textContent = `${displayFill}${unit} / ${displayCapacity}${unit}`;
+                
+                header.appendChild(cupName);
+                header.appendChild(cupInfo);
+                
+                // Details - phần chi tiết ẩn ban đầu
+                const details = document.createElement("div");
+                details.className = "cup-details";
                 
                 const fillLabel = document.createElement("label");
                 fillLabel.textContent = "Mức nước hiện tại:";
@@ -608,6 +670,7 @@
                 
                 const capacityLabel = document.createElement("label");
                 capacityLabel.textContent = "Dung tích tối đa:";
+                capacityLabel.style.marginTop = "8px";
                 
                 const capacityInput = document.createElement("input");
                 capacityInput.type = "number";
@@ -616,18 +679,39 @@
                 capacityInput.min = "1";
                 capacityInput.step = unit === "l" ? "0.01" : "1";
                 
-                div.appendChild(label);
-                div.appendChild(fillLabel);
-                div.appendChild(fillInput);
-                div.appendChild(capacityLabel);
-                div.appendChild(capacityInput);
+                details.appendChild(fillLabel);
+                details.appendChild(fillInput);
+                details.appendChild(capacityLabel);
+                details.appendChild(capacityInput);
                 
                 if (cups.length > 1) {
                     const deleteBtn = document.createElement("button");
+                    deleteBtn.className = "delete-btn";
                     deleteBtn.textContent = "🗑 Xóa cốc";
-                    deleteBtn.onclick = () => removeCup(i);
-                    div.appendChild(deleteBtn);
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        removeCup(i);
+                    };
+                    details.appendChild(deleteBtn);
                 }
+                
+                div.appendChild(header);
+                div.appendChild(details);
+                
+                // Click vào header để toggle
+                header.addEventListener("click", () => {
+                    const wasExpanded = div.classList.contains("expanded");
+                    
+                    // Đóng tất cả các cốc khác
+                    document.querySelectorAll(".cup-item").forEach(item => {
+                        item.classList.remove("expanded");
+                    });
+                    
+                    // Toggle cốc hiện tại
+                    if (!wasExpanded) {
+                        div.classList.add("expanded");
+                    }
+                });
                 
                 container.appendChild(div);
             });
@@ -660,16 +744,8 @@
             }
         });
 
-        document.getElementById("unitSelect").addEventListener("change", (e) => {
-            unit = e.target.value;
-            document.getElementById("bottleFillInput").value = unit === "l" ? (bottle.fill / 1000).toFixed(2) : Math.round(bottle.fill);
-            document.getElementById("bottleFillInput").step = unit === "l" ? "0.01" : "1";
-            document.getElementById("bottleCapacityInput").value = unit === "l" ? (bottle.capacity / 1000).toFixed(2) : bottle.capacity;
-            document.getElementById("bottleCapacityInput").step = unit === "l" ? "0.01" : "1";
-            updateSettingsPanel();
-        });
-
-        document.getElementById("applySettings").addEventListener("click", () => {
+        // Hàm áp dụng settings
+        function applySettings() {
             const bottleFillValue = parseFloat(document.getElementById("bottleFillInput").value);
             const bottleCapacityValue = parseFloat(document.getElementById("bottleCapacityInput").value);
             
@@ -698,7 +774,29 @@
                 }
             });
             
+            updateSettingsPanel();
+        }
+
+        document.getElementById("unitSelect").addEventListener("change", (e) => {
+            unit = e.target.value;
+            document.getElementById("bottleFillInput").value = unit === "l" ? (bottle.fill / 1000).toFixed(2) : Math.round(bottle.fill);
+            document.getElementById("bottleFillInput").step = unit === "l" ? "0.01" : "1";
+            document.getElementById("bottleCapacityInput").value = unit === "l" ? (bottle.capacity / 1000).toFixed(2) : bottle.capacity;
+            document.getElementById("bottleCapacityInput").step = unit === "l" ? "0.01" : "1";
+            updateSettingsPanel();
+        });
+
+        document.getElementById("applySettings").addEventListener("click", () => {
+            applySettings();
             document.getElementById("settingsPanel").style.display = "none";
+        });
+
+        // Enter để áp dụng
+        document.getElementById("settingsPanel").addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && e.target.tagName === "INPUT") {
+                e.preventDefault();
+                applySettings();
+            }
         });
 
         canvas.addEventListener("mousedown", e => {
