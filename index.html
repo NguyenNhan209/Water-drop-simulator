@@ -356,10 +356,10 @@
         };
         bottleFull.onload = onLoad;
 
-        cupEmpty.src = "res/cup_empty.png?v=20251011194006";
-        cupFull.src = "res/cup_full.png?v=20251011194006";
-        bottleEmpty.src = "res/bottle_empty.png?v=20251011194006";
-        bottleFull.src = "res/bottle_full.png?v=20251011194006";
+        cupEmpty.src = "res/cup_empty.png?v=20251011212338";
+        cupFull.src = "res/cup_full.png?v=20251011212338";
+        bottleEmpty.src = "res/bottle_empty.png?v=20251011212338";
+        bottleFull.src = "res/bottle_full.png?v=20251011212338";
 
         function resizeCanvas() {
             canvas.width = canvas.clientWidth;
@@ -459,6 +459,12 @@
                 const mouthX = cx - bottle.w / 2 * cos + bottle.h / 2 * sin;
                 const mouthY = cy - bottle.w / 2 * sin - bottle.h / 2 * cos;
 
+                console.log("🍶 Bottle pouring:", {
+                    pouring: bottle.pouring,
+                    fill: bottle.fill,
+                    angle: (bottle.angle * 180 / Math.PI).toFixed(1) + "°"
+                });
+
                 let targetCup = null;
                 let minDist = Infinity;
                 cups.forEach(cup => {
@@ -471,36 +477,82 @@
                     }
                 });
 
+                console.log("🥤 Target cup:", targetCup ? "Found" : "None");
+
                 if (targetCup) {
                     const targetX = targetCup.x + targetCup.w / 2;
                     const targetY = targetCup.y;
-                    const length = targetY - mouthY;
                     
-                    const gradient = ctx.createLinearGradient(mouthX, mouthY, targetX, targetY);
-                    gradient.addColorStop(0, "rgba(0,150,255,0.8)");
-                    gradient.addColorStop(0.5, "rgba(0,180,255,0.6)");
-                    gradient.addColorStop(1, "rgba(0,200,255,0.2)");
+                    // Kiểm tra hướng nghiêng của bình
+                    const bottleCenterX = bottle.x + bottle.w / 2;
+                    const bottleCenterY = bottle.y + bottle.h / 2;
+                    
+                    // Tính vị trí miệng bình dựa trên góc quay
+                    const cos = Math.cos(bottle.angle);
+                    const sin = Math.sin(bottle.angle);
+                    // Miệng bình ở đầu trên (đỉnh bình)
+                    const mouthRelativeX = sin * bottle.h / 2;
+                    const mouthRelativeY = -cos * bottle.h / 2;
+                    
+                    const actualMouthX = bottleCenterX + mouthRelativeX;
+                    
+                    // Kiểm tra: cốc phải nằm về phía bình đang nghiêng
+                    const cupDirection = targetX - bottleCenterX; // Dương = cốc ở bên phải, Âm = cốc ở bên trái
+                    const tiltDirection = mouthRelativeX; // Dương = nghiêng phải, Âm = nghiêng trái
+                    const isSameDirection = (cupDirection * tiltDirection) > 0; // Cùng dấu = cùng hướng
+                    
+                    // Kiểm tra các điều kiện
+                    const angleInDegrees = bottle.angle * 180 / Math.PI;
+                    const isBottleTilted = Math.abs(bottle.angle) > 0.17; // Nghiêng ít nhất 10 độ
+                    const isMouthAboveCup = mouthY < targetY + 50;
+                    const isMouthPointingDown = mouthY > cy;
+                    
+                    console.log("📐 Angle check:", {
+                        bottleAngle: angleInDegrees.toFixed(1) + "°",
+                        isBottleTilted: isBottleTilted,
+                        isMouthAboveCup: isMouthAboveCup,
+                        isSameDirection: isSameDirection,
+                        cupDirection: cupDirection > 0 ? "right" : "left",
+                        tiltDirection: tiltDirection > 0 ? "right" : "left",
+                        mouthY: mouthY.toFixed(1),
+                        centerY: cy.toFixed(1),
+                        targetY: targetY.toFixed(1),
+                        canPour: isBottleTilted && isMouthAboveCup && isSameDirection
+                    });
+                    
+                    // Chỉ vẽ nước khi bình nghiêng đúng hướng về phía cốc
+                    if (isBottleTilted && isMouthAboveCup && isSameDirection) {
+                        console.log("✅ Drawing water stream!");
+                        const length = targetY - mouthY;
+                        
+                        const gradient = ctx.createLinearGradient(mouthX, mouthY, targetX, targetY);
+                        gradient.addColorStop(0, "rgba(0,150,255,0.8)");
+                        gradient.addColorStop(0.5, "rgba(0,180,255,0.6)");
+                        gradient.addColorStop(1, "rgba(0,200,255,0.2)");
 
-                    ctx.beginPath();
-                    for (let y = 0; y <= length; y += 5) {
-                        const progress = y / length;
-                        const xLerp = mouthX + (targetX - mouthX) * progress;
-                        const yLerp = mouthY + (targetY - mouthY) * progress;
-                        const offset = Math.sin((y / 25) * Math.PI * 2 + t) * 4;
-                        const x = xLerp + offset - 10;
-                        if (y === 0) ctx.moveTo(x, yLerp);
-                        else ctx.lineTo(x, yLerp);
+                        ctx.beginPath();
+                        for (let y = 0; y <= length; y += 5) {
+                            const progress = y / length;
+                            const xLerp = mouthX + (targetX - mouthX) * progress;
+                            const yLerp = mouthY + (targetY - mouthY) * progress;
+                            const offset = Math.sin((y / 25) * Math.PI * 2 + t) * 4;
+                            const x = xLerp + offset - 10;
+                            if (y === 0) ctx.moveTo(x, yLerp);
+                            else ctx.lineTo(x, yLerp);
+                        }
+                        for (let y = length; y >= 0; y -= 5) {
+                            const progress = y / length;
+                            const xLerp = mouthX + (targetX - mouthX) * progress;
+                            const yLerp = mouthY + (targetY - mouthY) * progress;
+                            const offset = Math.sin((y / 25) * Math.PI * 2 + t) * 4;
+                            ctx.lineTo(xLerp + offset + 10, yLerp);
+                        }
+                        ctx.closePath();
+                        ctx.fillStyle = gradient;
+                        ctx.fill();
+                    } else {
+                        console.log("❌ Cannot pour - angle or position not suitable");
                     }
-                    for (let y = length; y >= 0; y -= 5) {
-                        const progress = y / length;
-                        const xLerp = mouthX + (targetX - mouthX) * progress;
-                        const yLerp = mouthY + (targetY - mouthY) * progress;
-                        const offset = Math.sin((y / 25) * Math.PI * 2 + t) * 4;
-                        ctx.lineTo(xLerp + offset + 10, yLerp);
-                    }
-                    ctx.closePath();
-                    ctx.fillStyle = gradient;
-                    ctx.fill();
                 }
             }
 
@@ -525,7 +577,11 @@
             let nearestCup = null;
             let minDistance = Infinity;
             cups.forEach(cup => {
-                if (isNearCup(bottle, cup) && cup.fill < cup.capacity) {
+                const bottleCenterX = bottle.x + bottle.w / 2;
+                const cupCenterX = cup.x + cup.w / 2;
+                const isBottleOnRight = bottleCenterX > cupCenterX; // Bình phải ở bên phải cốc
+                
+                if (isNearCup(bottle, cup) && cup.fill < cup.capacity && isBottleOnRight) {
                     const distance = Math.hypot((bottle.x + bottle.w/2) - (cup.x + cup.w/2), (bottle.y + bottle.h/2) - (cup.y + cup.h/2));
                     if (distance < minDistance) {
                         minDistance = distance;
@@ -543,17 +599,27 @@
             if (bottle.pouring && nearestCup) {
                 const cx = bottle.x + bottle.w / 2;
                 const cy = bottle.y + bottle.h / 2;
-                const cos = Math.cos(bottle.angle);
-                const sin = Math.sin(bottle.angle);
-                const mouthX = cx - bottle.w / 2 * cos + bottle.h / 2 * sin;
-                const mouthY = cy - bottle.w / 2 * sin - bottle.h / 2 * cos;
-
                 const cupTargetX = nearestCup.x + nearestCup.w / 2;
                 const cupTargetY = nearestCup.y;
 
-                let targetAngle = Math.atan2(cupTargetY - mouthY, cupTargetX - mouthX);
-                targetAngle = Math.max(targetAngle, -Math.PI / 2);
-                targetAngle = Math.min(targetAngle, -0.2);
+                // Tính góc để hướng về phía cốc
+                const dx = cupTargetX - cx;
+                const dy = cupTargetY - cy;
+                let targetAngle = Math.atan2(dy, dx) - Math.PI / 2;
+                
+                // Giới hạn góc nghiêng: chỉ cho phép -15° đến -75° (nghiêng vừa phải)
+                const minAngle = -Math.PI * 0.42; // -75 độ (nghiêng tối đa)
+                const maxAngle = -Math.PI * 0.08; // -15 độ (nghiêng tối thiểu)
+                
+                targetAngle = Math.max(minAngle, Math.min(maxAngle, targetAngle));
+                
+                console.log("🔄 Auto tilt:", {
+                    currentAngle: (bottle.angle * 180 / Math.PI).toFixed(1) + "°",
+                    targetAngle: (targetAngle * 180 / Math.PI).toFixed(1) + "°",
+                    minAllowed: "-75°",
+                    maxAllowed: "-15°"
+                });
+                
                 bottle.angle += (targetAngle - bottle.angle) * 0.1;
 
                 const pourSpeed = 2;
