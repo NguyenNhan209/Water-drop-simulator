@@ -421,15 +421,15 @@
         const ctx = canvas.getContext("2d");
 
         // Biến toàn cục
-        let unit = "ml";
+        let unit = "l";
         let settingsChanged = false;
         let bottle = {
             x: 550,
             y: 80,
             w: 120,
             h: 220,
-            capacity: 1000,
-            fill: 1000,
+            capacity: 2000,
+            fill: 2000,
             pouring: false,
             angle: 0,
             dragging: false,
@@ -443,7 +443,7 @@
             y: 150,
             w: 120,
             h: 180,
-            capacity: 400,
+            capacity: 1000,
             fill: 0,
             dragging: false,
             offsetX: 0,
@@ -508,12 +508,12 @@
         };
         measuredCupFull.onload = onLoad;
 
-        cupEmpty.src = "res/cup_empty.png?v=20251012220929";
-        cupFull.src = "res/cup_full.png?v=20251012220929";
-        bottleEmpty.src = "res/bottle_empty.png?v=20251012220929";
-        bottleFull.src = "res/bottle_full.png?v=20251012220929";
-        measuredCupEmpty.src = "res/measured_cup_empty.png?v=20251012220929";
-        measuredCupFull.src = "res/measured_cup_full.png?v=20251012220929";
+        cupEmpty.src = "res/cup_empty.png?v=20251012232832";
+        cupFull.src = "res/cup_full.png?v=20251012232832";
+        bottleEmpty.src = "res/bottle_empty.png?v=20251012232832";
+        bottleFull.src = "res/bottle_full.png?v=20251012232832";
+        measuredCupEmpty.src = "res/measured_cup_empty.png?v=20251012232832";
+        measuredCupFull.src = "res/measured_cup_full.png?v=20251012232832";
 
         function resizeCanvas() {
             canvas.width = canvas.clientWidth;
@@ -829,7 +829,7 @@
                     newW = 120;
                     newH = 130;
                 }
-                newCapacity = 400;
+                newCapacity = 1000;
             }
 
             if (newX + newW > canvas.width - 50) {
