@@ -471,7 +471,7 @@
             offsetX: 0,
             offsetY: 0,
             showUnit: true,
-            unit: 'l'  
+            unit: 'l'
         };
 
         let cups = [{
@@ -487,7 +487,7 @@
             showUnit: true,
             showScale: false,
             type: 'normal',
-            unit: 'l'  
+            unit: 'l'
         }];
         // Lưu state ban đầu và state tạm thời
         let savedState = null;
@@ -635,14 +635,15 @@
             if (cup.showUnit) {
                 ctx.fillStyle = "#2c3e50";
                 ctx.font = "14px sans-serif";
-                const cupUnit = cup.unit || 'l';  
-                const displayFill = cupUnit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup.fill); // SỬA
-                const displayCapacity = cupUnit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity; // SỬA
+                const cupUnit = cup.unit || 'l';
+                const displayFill = cupUnit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup.fill);
+                const displayCapacity = cupUnit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
                 const cupType = cup.type === 'measuring' ? 'Cốc đo' : 'Cốc';
                 const normalCupIndex = cups.filter((c, i) => c.type === cup.type && cups.indexOf(c) <= cups.indexOf(
                     cup)).length;
                 ctx.fillText(`${cupType} ${normalCupIndex}: ${displayFill} / ${displayCapacity} ${cupUnit}`, cup.x, cup
-                    .y + cup.h + 20); // SỬA cupUnit
+                    .y + cup.h + 20);
+                cupUnit
             }
         }
 
@@ -759,13 +760,13 @@
             if (bottle.showUnit) {
                 ctx.fillStyle = "#2c3e50";
                 ctx.font = "16px sans-serif";
-                const bottleUnit = bottle.unit || 'l';  
+                const bottleUnit = bottle.unit || 'l';
                 const displayFill = bottleUnit === "l" ? (bottle.fill / 1000).toFixed(2) : Math.round(bottle
-                .fill); // SỬA
+                    .fill);
                 const displayCapacity = bottleUnit === "l" ? (bottle.capacity / 1000).toFixed(2) : bottle
-                .capacity; // SỬA
+                    .capacity;
                 ctx.fillText(`Bình: ${displayFill} / ${displayCapacity} ${bottleUnit}`, bottle.x - 20, bottle.y + bottle
-                    .h + 50); // SỬA bottleUnit
+                    .h + 50);
             }
         }
 
@@ -820,23 +821,23 @@
 
                 bottle.angle += (targetAngle - bottle.angle) * 0.1;
 
-// Tính tốc độ rót dựa trên đơn vị
-const bottleUnit = bottle.unit || 'l';
-const cupUnit = nearestCup.unit || 'l';
-// Nếu đơn vị là ml thì rót nhanh hơn, nhưng giới hạn tốc độ tối đa
-const basePourSpeed = 2;
-const bottleSpeedMultiplier = bottleUnit === 'ml' ? 1000 : 1;
-const cupSpeedMultiplier = cupUnit === 'ml' ? 1000 : 1;
-// Lấy tốc độ trung bình của cả 2
-const speedMultiplier = (bottleSpeedMultiplier + cupSpeedMultiplier) / 2;
-const calculatedSpeed = basePourSpeed * speedMultiplier;
-// Giới hạn tốc độ tối đa là 50 (ml hoặc l tùy theo đơn vị nhỏ nhất)
-const maxSpeed = 15;
-const pourSpeed = Math.min(calculatedSpeed, maxSpeed);
+                // Tính tốc độ rót dựa trên đơn vị
+                const bottleUnit = bottle.unit || 'l';
+                const cupUnit = nearestCup.unit || 'l';
+                // Nếu đơn vị là ml thì rót nhanh hơn, nhưng giới hạn tốc độ tối đa
+                const basePourSpeed = 2;
+                const bottleSpeedMultiplier = bottleUnit === 'ml' ? 1000 : 1;
+                const cupSpeedMultiplier = cupUnit === 'ml' ? 1000 : 1;
+                // Lấy tốc độ trung bình của cả 2
+                const speedMultiplier = (bottleSpeedMultiplier + cupSpeedMultiplier) / 2;
+                const calculatedSpeed = basePourSpeed * speedMultiplier;
+                // Giới hạn tốc độ tối đa là 50 (ml hoặc l tùy theo đơn vị nhỏ nhất)
+                const maxSpeed = 15;
+                const pourSpeed = Math.min(calculatedSpeed, maxSpeed);
 
-const actualPour = Math.min(pourSpeed, bottle.fill, nearestCup.capacity - nearestCup.fill);
-nearestCup.fill += actualPour;
-bottle.fill -= actualPour;
+                const actualPour = Math.min(pourSpeed, bottle.fill, nearestCup.capacity - nearestCup.fill);
+                nearestCup.fill += actualPour;
+                bottle.fill -= actualPour;
 
                 if (nearestCup.fill >= nearestCup.capacity) {
                     nearestCup.fill = nearestCup.capacity;
@@ -896,7 +897,7 @@ bottle.fill -= actualPour;
 
             // Kiểm tra trạng thái hiển thị: lấy từ cốc cuối cùng hoặc từ bình
             const inheritShowUnit = cups.length > 0 ? lastCup.showUnit : bottle.showUnit;
-            const inheritUnit = cups.length > 0 ? lastCup.unit : bottle.unit;  
+            const inheritUnit = cups.length > 0 ? lastCup.unit : bottle.unit;
 
             const newCup = {
                 x: newX,
@@ -911,7 +912,7 @@ bottle.fill -= actualPour;
                 showUnit: inheritShowUnit,
                 showScale: type === 'measuring',
                 type: type,
-                unit: inheritUnit  
+                unit: inheritUnit
             };
 
             cups.push(newCup);
@@ -959,7 +960,7 @@ bottle.fill -= actualPour;
                 normalContainer.innerHTML =
                     '<p style="color: #718096; font-size: 13px; padding: 8px;">Chưa có cốc thường nào</p>';
             } else {
-                // THÊM ĐOẠN NÀY - Nút đổi đơn vị hàng loạt
+                //Nút đổi đơn vị hàng loạt
                 const bulkUnitBtn = document.createElement("button");
                 bulkUnitBtn.className = "hide-all-btn";
                 bulkUnitBtn.style.marginBottom = "8px";
@@ -972,7 +973,7 @@ bottle.fill -= actualPour;
                     updateSettingsPanel();
                 };
                 normalContainer.appendChild(bulkUnitBtn);
-                // HẾT ĐOẠN THÊM
+
 
                 normalCups.forEach((cup, localIndex) => {
                     const globalIndex = cups.indexOf(cup);
@@ -981,12 +982,11 @@ bottle.fill -= actualPour;
             }
 
             // Cốc đo
-            // Cốc đo
             if (measuringCups.length === 0) {
                 measuringContainer.innerHTML =
                     '<p style="color: #718096; font-size: 13px; padding: 8px;">Chưa có cốc đo nào</p>';
             } else {
-                // THÊM ĐOẠN NÀY
+
                 const bulkUnitBtn = document.createElement("button");
                 bulkUnitBtn.className = "hide-all-btn";
                 bulkUnitBtn.style.marginBottom = "8px";
@@ -999,7 +999,7 @@ bottle.fill -= actualPour;
                     updateSettingsPanel();
                 };
                 measuringContainer.appendChild(bulkUnitBtn);
-                // HẾT ĐOẠN THÊM
+
 
                 measuringCups.forEach((cup, localIndex) => {
                     const globalIndex = cups.indexOf(cup);
@@ -1032,10 +1032,10 @@ bottle.fill -= actualPour;
             const cupInfo = document.createElement("span");
             cupInfo.style.fontSize = "13px";
             cupInfo.style.color = "#718096";
-            const cupUnit = cup.unit || 'l'; // SỬA
-            const displayFill = cupUnit === "l" ? (cup.fill / 1000).toFixed(1) : Math.round(cup.fill); // SỬA
-            const displayCapacity = cupUnit === "l" ? (cup.capacity / 1000).toFixed(1) : cup.capacity; // SỬA
-            cupInfo.textContent = `${displayFill}${cupUnit} / ${displayCapacity}${cupUnit}`; // SỬA
+            const cupUnit = cup.unit || 'l';
+            const displayFill = cupUnit === "l" ? (cup.fill / 1000).toFixed(1) : Math.round(cup.fill);
+            const displayCapacity = cupUnit === "l" ? (cup.capacity / 1000).toFixed(1) : cup.capacity;
+            cupInfo.textContent = `${displayFill}${cupUnit} / ${displayCapacity}${cupUnit}`;
             header.appendChild(cupName);
             header.appendChild(cupInfo);
 
@@ -1067,10 +1067,10 @@ bottle.fill -= actualPour;
             fillInput.type = "number";
             fillInput.id = `cup${globalIndex}FillInput`;
             fillInput.value = cupUnit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup
-            .fill); // SỬA thành cupUnit
+                .fill);
             fillInput.min = "0";
-            fillInput.max = cupUnit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity; // SỬA
-            fillInput.step = cupUnit === "l" ? "0.01" : "1"; // SỬA
+            fillInput.max = cupUnit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
+            fillInput.step = cupUnit === "l" ? "0.01" : "1";
             fillInput.addEventListener('input', () => settingsChanged = true);
 
             details.appendChild(fillLabel);
@@ -1085,9 +1085,9 @@ bottle.fill -= actualPour;
                 const capacityInput = document.createElement("input");
                 capacityInput.type = "number";
                 capacityInput.id = `cup${globalIndex}CapacityInput`;
-                capacityInput.value = cupUnit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity; // SỬA
+                capacityInput.value = cupUnit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
                 capacityInput.min = "1";
-                capacityInput.step = cupUnit === "l" ? "0.01" : "1"; // SỬA
+                capacityInput.step = cupUnit === "l" ? "0.01" : "1";
                 capacityInput.addEventListener('input', () => settingsChanged = true);
 
                 details.appendChild(capacityLabel);
@@ -1220,14 +1220,14 @@ bottle.fill -= actualPour;
                 panel.style.display = "block";
                 overlay.classList.add("active");
 
-                document.getElementById("bottleUnitSelect").value = bottle.unit || 'l'; // SỬA
-                const bottleUnit = bottle.unit || 'l'; // THÊM
+                document.getElementById("bottleUnitSelect").value = bottle.unit || 'l';
+                const bottleUnit = bottle.unit || 'l';
                 document.getElementById("bottleFillInput").value = bottleUnit === "l" ? (bottle.fill / 1000)
-                    .toFixed(2) : Math.round(bottle.fill); // SỬA
-                document.getElementById("bottleFillInput").step = bottleUnit === "l" ? "0.01" : "1"; // SỬA
+                    .toFixed(2) : Math.round(bottle.fill);
+                document.getElementById("bottleFillInput").step = bottleUnit === "l" ? "0.01" : "1";
                 document.getElementById("bottleCapacityInput").value = bottleUnit === "l" ? (bottle.capacity /
-                    1000).toFixed(2) : bottle.capacity; // SỬA
-                document.getElementById("bottleCapacityInput").step = bottleUnit === "l" ? "0.01" : "1"; // SỬA
+                    1000).toFixed(2) : bottle.capacity;
+                document.getElementById("bottleCapacityInput").step = bottleUnit === "l" ? "0.01" : "1";
                 document.getElementById("bottleShowUnit").checked = bottle.showUnit;
                 updateSettingsPanel();
             }
@@ -1241,7 +1241,7 @@ bottle.fill -= actualPour;
 
             document.getElementById("confirmModal").classList.remove("active");
             document.getElementById("settingsPanel").style.display = "none";
-            document.getElementById("settingsOverlay").classList.remove("active");  
+            document.getElementById("settingsOverlay").classList.remove("active");
             settingsChanged = false;
         });
 
@@ -1280,21 +1280,21 @@ bottle.fill -= actualPour;
         });
 
         function applySettings() {
-            const bottleUnit = bottle.unit || 'l'; // THÊM
+            const bottleUnit = bottle.unit || 'l';
             const bottleFillValue = parseFloat(document.getElementById("bottleFillInput").value);
             const bottleCapacityValue = parseFloat(document.getElementById("bottleCapacityInput").value);
             bottle.showUnit = document.getElementById("bottleShowUnit").checked;
 
             if (!isNaN(bottleCapacityValue) && bottleCapacityValue > 0) {
-                bottle.capacity = bottleUnit === "l" ? bottleCapacityValue * 1000 : bottleCapacityValue; // SỬA
+                bottle.capacity = bottleUnit === "l" ? bottleCapacityValue * 1000 : bottleCapacityValue;
             }
             if (!isNaN(bottleFillValue)) {
                 bottle.fill = Math.max(0, Math.min(bottle.capacity, bottleUnit === "l" ? bottleFillValue * 1000 :
-                    bottleFillValue)); // SỬA
+                    bottleFillValue));
             }
 
             cups.forEach((c, i) => {
-                const cupUnit = c.unit || 'l'; // THÊM
+                const cupUnit = c.unit || 'l';
                 const fillInput = document.getElementById(`cup${i}FillInput`);
                 const capacityInput = document.getElementById(`cup${i}CapacityInput`);
                 const showUnitCheckbox = document.getElementById(`cup${i}ShowUnit`);
@@ -1304,7 +1304,7 @@ bottle.fill -= actualPour;
                 if (capacityInput && c.type !== 'measuring') {
                     const capacityVal = parseFloat(capacityInput.value);
                     if (!isNaN(capacityVal) && capacityVal > 0) {
-                        c.capacity = cupUnit === "l" ? capacityVal * 1000 : capacityVal; // SỬA
+                        c.capacity = cupUnit === "l" ? capacityVal * 1000 : capacityVal;
                     }
                 }
 
@@ -1312,7 +1312,7 @@ bottle.fill -= actualPour;
                     const fillVal = parseFloat(fillInput.value);
                     if (!isNaN(fillVal)) {
                         c.fill = Math.max(0, Math.min(c.capacity, cupUnit === "l" ? fillVal * 1000 :
-                        fillVal)); // SỬA
+                            fillVal));
                     }
                 }
                 if (showUnitCheckbox) {
@@ -1330,7 +1330,7 @@ bottle.fill -= actualPour;
         document.getElementById("applySettings").addEventListener("click", () => {
             applySettings();
             document.getElementById("settingsPanel").style.display = "none";
-            document.getElementById("settingsOverlay").classList.remove("active");  
+            document.getElementById("settingsOverlay").classList.remove("active");
         });
 
         // Các input trong phần bình nước
