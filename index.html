@@ -136,13 +136,54 @@
             transform: translateY(-50%);
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
-            padding: 24px;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            max-height: 80vh;
-            overflow-y: auto;
+            height: 80vh;
             min-width: 320px;
             border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 1000;
+            display: flex;
+            /* ← thêm flexbox */
+            flex-direction: column;
+            /* ← thêm */
+            overflow: hidden;
+            /* ← thay đổi */
+        }
+
+        /* ← Thêm mới: Header cố định */
+        #settingsHeader {
+            padding: 24px 24px 16px 24px;
+            background: rgba(255, 255, 255, 0.98);
+            border-bottom: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        /* ← Thêm mới: Content cuộn được */
+        #settingsContent {
+            padding: 16px 24px 24px 24px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+            max-height: calc(80vh - 80px); /* ← Thêm dòng này, 80px là chiều cao header */
+        }
+
+        /* ← Thêm mới: Tùy chỉnh scrollbar */
+        #settingsContent::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #settingsContent::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        #settingsContent::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 10px;
+        }
+
+        #settingsContent::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
         }
 
         #settingsPanel h4 {
@@ -348,24 +389,6 @@
         #settingsOverlay.active {
             display: block;
         }
-
-        #settingsPanel {
-            position: fixed;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            max-height: 80vh;
-            overflow-y: auto;
-            min-width: 320px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            z-index: 1000;
-            /* Thêm dòng này để panel nằm trên overlay */
-        }
     </style>
 </head>
 
@@ -387,14 +410,15 @@
         <div id="settingsOverlay"></div>
     </div>
 
-    <div id="settingsPanel" style="display:none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+<div id="settingsPanel" style="display:none;">
+    <div id="settingsHeader">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
             <h4 style="margin: 0;">⚙️ Cài đặt</h4>
-            <button id="applySettings" style="width: auto; padding: 8px 16px; font-size: 13px;">✓ Áp dụng</button>
+            <button id="applySettings">✓ Áp dụng</button>
         </div>
+    </div>
 
-        <hr>
-
+    <div id="settingsContent">
         <label>
             Đơn vị đo bình nước
             <select id="bottleUnitSelect">
@@ -424,9 +448,9 @@
                 <span>Hiển thị đơn vị đo</span>
             </label>
         </div>
-
+        
         <hr>
-
+        
         <label style="font-size: 14px; font-weight: 600; color: #1a202c; margin-bottom: 8px;">
             🥤 Cốc thường
         </label>
@@ -438,7 +462,11 @@
             📏 Cốc đo 1 lít
         </label>
         <div id="measuringCupsSettingsContainer" style="margin-top: 8px;"></div>
+        
+        <hr> <!-- ← Di chuyển vào đây -->
     </div>
+</div>
+
 
     <div id="confirmModal" class="modal-overlay">
         <div class="modal-content">
