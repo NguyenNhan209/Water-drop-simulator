@@ -471,7 +471,7 @@
             offsetX: 0,
             offsetY: 0,
             showUnit: true,
-            unit: 'l' // THÊM DÒNG NÀY
+            unit: 'l'  
         };
 
         let cups = [{
@@ -487,7 +487,7 @@
             showUnit: true,
             showScale: false,
             type: 'normal',
-            unit: 'l' // THÊM DÒNG NÀY
+            unit: 'l'  
         }];
         // Lưu state ban đầu và state tạm thời
         let savedState = null;
@@ -635,7 +635,7 @@
             if (cup.showUnit) {
                 ctx.fillStyle = "#2c3e50";
                 ctx.font = "14px sans-serif";
-                const cupUnit = cup.unit || 'l'; // THÊM DÒNG NÀY
+                const cupUnit = cup.unit || 'l';  
                 const displayFill = cupUnit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup.fill); // SỬA
                 const displayCapacity = cupUnit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity; // SỬA
                 const cupType = cup.type === 'measuring' ? 'Cốc đo' : 'Cốc';
@@ -759,7 +759,7 @@
             if (bottle.showUnit) {
                 ctx.fillStyle = "#2c3e50";
                 ctx.font = "16px sans-serif";
-                const bottleUnit = bottle.unit || 'l'; // THÊM DÒNG NÀY
+                const bottleUnit = bottle.unit || 'l';  
                 const displayFill = bottleUnit === "l" ? (bottle.fill / 1000).toFixed(2) : Math.round(bottle
                 .fill); // SỬA
                 const displayCapacity = bottleUnit === "l" ? (bottle.capacity / 1000).toFixed(2) : bottle
@@ -896,7 +896,7 @@ bottle.fill -= actualPour;
 
             // Kiểm tra trạng thái hiển thị: lấy từ cốc cuối cùng hoặc từ bình
             const inheritShowUnit = cups.length > 0 ? lastCup.showUnit : bottle.showUnit;
-            const inheritUnit = cups.length > 0 ? lastCup.unit : bottle.unit; // THÊM DÒNG NÀY
+            const inheritUnit = cups.length > 0 ? lastCup.unit : bottle.unit;  
 
             const newCup = {
                 x: newX,
@@ -911,7 +911,7 @@ bottle.fill -= actualPour;
                 showUnit: inheritShowUnit,
                 showScale: type === 'measuring',
                 type: type,
-                unit: inheritUnit // THÊM DÒNG NÀY
+                unit: inheritUnit  
             };
 
             cups.push(newCup);
@@ -1241,7 +1241,7 @@ bottle.fill -= actualPour;
 
             document.getElementById("confirmModal").classList.remove("active");
             document.getElementById("settingsPanel").style.display = "none";
-            document.getElementById("settingsOverlay").classList.remove("active"); // Thêm dòng này
+            document.getElementById("settingsOverlay").classList.remove("active");  
             settingsChanged = false;
         });
 
@@ -1330,7 +1330,7 @@ bottle.fill -= actualPour;
         document.getElementById("applySettings").addEventListener("click", () => {
             applySettings();
             document.getElementById("settingsPanel").style.display = "none";
-            document.getElementById("settingsOverlay").classList.remove("active"); // Thêm dòng này
+            document.getElementById("settingsOverlay").classList.remove("active");  
         });
 
         // Các input trong phần bình nước
