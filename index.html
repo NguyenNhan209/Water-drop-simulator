@@ -133,7 +133,8 @@
             position: fixed;
             top: 50%;
             right: 20px;
-            transform: translateY(-50%);
+            transform: translateY(-50%) translateX(100%);
+            /* ← Thêm translateX để ẩn bên phải */
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
             border-radius: 16px;
@@ -143,11 +144,47 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             z-index: 1000;
             display: flex;
-            /* ← thêm flexbox */
             flex-direction: column;
-            /* ← thêm */
             overflow: hidden;
-            /* ← thay đổi */
+            opacity: 0;
+            /* ← Bắt đầu trong suốt */
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            /* ← Animation mượt */
+            pointer-events: none;
+            /* ← Không tương tác khi ẩn */
+        }
+
+        #settingsPanel.active {
+            transform: translateY(-50%) translateX(0);
+            /* ← Trượt vào */
+            opacity: 1;
+            /* ← Hiện rõ */
+            pointer-events: all;
+            /* ← Cho phép tương tác */
+        }
+
+        #settingsOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            /* ← Đổi từ 0.3 thành 0.5 (đen hơn) */
+            z-index: 999;
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            /* ← Bắt đầu trong suốt */
+            transition: opacity 0.3s ease;
+            /* ← Animation fade */
+        }
+
+        #settingsOverlay.active {
+            display: block;
+            opacity: 1;
+            /* ← Fade in */
         }
 
         /* ← Thêm mới: Header cố định */
@@ -396,11 +433,11 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🌊 Trò chơi rót nước</h1>
+            <h1>🌊 Mô phỏng rót nước</h1>
             <div id="controls">
                 <button id="resetBtn">↺ Reset</button>
-                <button id="btnAddCup">+ Cốc thường</button>
-                <button id="btnAddMeasuringCup">📏 Cốc đo 1L</button>
+                <button id="btnAddCup">Thêm cốc thường</button>
+                <button id="btnAddMeasuringCup">📏 Thêm cốc đo 1L</button>
                 <button id="settingsBtn">⚙ Cài đặt</button>
             </div>
         </div>
@@ -411,7 +448,7 @@
         <div id="settingsOverlay"></div>
     </div>
 
-    <div id="settingsPanel" style="display:none;">
+    <div id="settingsPanel">
         <div id="settingsHeader">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h4 style="margin: 0;">⚙️ Cài đặt</h4>
@@ -604,139 +641,142 @@
             obj.w = obj.h * ratio;
         }
 
-function drawCup(cup, index, highlight = false) {
-    if (highlight) {
-        ctx.save();
-        ctx.fillStyle = "rgba(0,200,255,0.15)";
-        ctx.fillRect(cup.x - 10, cup.y - 10, cup.w + 20, cup.h + 20);
-        ctx.restore();
-    }
+        function drawCup(cup, index, highlight = false) {
+            if (highlight) {
+                ctx.save();
+                ctx.fillStyle = "rgba(0,200,255,0.15)";
+                ctx.fillRect(cup.x - 10, cup.y - 10, cup.w + 20, cup.h + 20);
+                ctx.restore();
+            }
 
-    // Vẽ cốc rỗng (nền)
-    if (cupEmpty.complete) {
-        if (cup.type === 'measuring' && cup.showScale) {
-            // ✅ Vẽ cốc đo với tỉ lệ gốc (không kéo dãn)
-            ctx.drawImage(measuredCupEmpty, cup.x, cup.y, cup.w, cup.h);
-        } else {
-            ctx.drawImage(cupEmpty, cup.x, cup.y, cup.w, cup.h);
-        }
-    } else {
-        ctx.strokeStyle = "#2c3e50";
-        ctx.strokeRect(cup.x, cup.y, cup.w, cup.h);
-    }
+            // Vẽ cốc rỗng (nền)
+            if (cupEmpty.complete) {
+                if (cup.type === 'measuring' && cup.showScale) {
+                    // Vẽ cốc đo với tỉ lệ gốc (không kéo dãn)
+                    ctx.drawImage(measuredCupEmpty, cup.x, cup.y, cup.w, cup.h);
+                } else {
+                    ctx.drawImage(cupEmpty, cup.x, cup.y, cup.w, cup.h);
+                }
+            } else {
+                ctx.strokeStyle = "#2c3e50";
+                ctx.strokeRect(cup.x, cup.y, cup.w, cup.h);
+            }
 
-// Vẽ nước
-if (cup.fill > 0) {
-    const percent = cup.fill / cup.capacity;
-    const waterHeight = cup.h * percent;
-    
-// ✅ Xử lý riêng cho cốc đo (cắt ảnh với tỉ lệ chính xác)
-    if (cup.type === 'measuring' && cup.showScale && measuredCupFull.complete) {
-        // Thông số ảnh gốc (measured_cup_full.png: 370×392px)
-        const imgWidth = measuredCupFull.naturalWidth;   // 370px
-        const imgHeight = measuredCupFull.naturalHeight; // 392px
-        
-        // ✅ Sử dụng số liệu đo thực tế (đo từ đáy ảnh lên):
-        // Vạch: 0ml=13px, 100ml=33px, 200ml=64px, 300ml=95px, 400ml=126px, 
-        //       500ml=157px, 900ml=281px, 1000ml=313px
-        // 
-        // Phân tích: 
-        // - 0→100ml: 20px (đáy cốc rộng)
-        // - 100→900ml: ~31px/100ml (đều đặn)
-        // - Vùng ổn định: 100-900ml có tỷ lệ tuyến tính
-        
-        const waterBottomY = 392 - 13;   // Đáy nước = 379px (0ml)
-        const waterTopY = 392 - 313;     // Đỉnh nước = 79px (1000ml)
-        
-        // Tính vị trí Y dựa trên ml hiện tại
-        const currentMl = cup.fill;
-        let sourceY;
-        
-        if (currentMl <= 100) {
-            // Vùng 0-100ml: nội suy tuyến tính
-            const ratio = currentMl / 100;
-            const heightInImage = 20 * ratio; // 0→100ml = 20px
-            sourceY = waterBottomY - heightInImage;
-        } else {
-            // Vùng 100-1000ml: tỷ lệ đều 31px/100ml
-            const mlAbove100 = currentMl - 100;
-            const heightAbove100 = (mlAbove100 / 100) * 31; // 31px mỗi 100ml
-            sourceY = (392 - 33) - heightAbove100; // Bắt đầu từ vạch 100ml (y=359)
-        }
-        
-        // Giới hạn vùng cắt trong phạm vi nước (không vượt quá đỉnh nước)
-        const clampedSourceY = Math.max(waterTopY, sourceY);
-        const clampedSourceHeight = waterBottomY - clampedSourceY;
-        
-        // ✅ Tính scale dựa trên tỷ lệ ảnh gốc để đảm bảo chính xác
-        // Tính scale từ cả width và height, lấy giá trị nhỏ hơn để giữ nguyên tỷ lệ
-        const scaleW = cup.w / imgWidth;
-        const scaleH = cup.h / imgHeight;
-        const scale = Math.min(scaleW, scaleH); // Dùng scale nhỏ hơn để không bị méo
-        
-        // ✅ Tính lại kích thước thực tế hiển thị (giữ nguyên tỷ lệ ảnh gốc)
-        const actualWidth = imgWidth * scale;
-        const actualHeight = imgHeight * scale;
-        
-        // ✅ Căn giữa nếu cốc rộng hơn ảnh sau khi scale
-        const offsetX = (cup.w - actualWidth) / 2;
-        const offsetY = (cup.h - actualHeight) / 2;
-        
-        // ✅ Tính vị trí trên canvas: 
-        const destY = cup.y + offsetY + (clampedSourceY * scale);
-        const destHeight = clampedSourceHeight * scale;
-        const destX = cup.x + offsetX;
-        const destWidth = actualWidth;
-        
-        // Vẽ phần nước đã cắt
-        ctx.drawImage(
-            measuredCupFull,
-            0,                          // sourceX: từ trái ảnh gốc
-            clampedSourceY,             // sourceY: vị trí bắt đầu cắt
-            imgWidth,                   // sourceWidth: toàn bộ chiều rộng gốc
-            clampedSourceHeight,        // sourceHeight: chiều cao cắt
-            destX,                      // destX: vị trí x trên canvas (có căn giữa)
-            destY,                      // destY: vị trí y trên canvas
-            destWidth,                  // destWidth: chiều rộng thực tế (giữ tỷ lệ)
-            destHeight                  // destHeight: chiều cao canvas
-        );
-    }else {
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(cup.x, cup.y + cup.h - waterHeight);
+            // Vẽ nước
+            if (cup.fill > 0) {
+                const percent = cup.fill / cup.capacity;
+                const waterHeight = cup.h * percent;
 
-        // Tạo sóng nước
-        for (let x = 0; x <= cup.w; x += 5) {
-            const y = Math.sin((x / 50) * Math.PI * 2 + t) * 6;
-            ctx.lineTo(cup.x + x, cup.y + cup.h - waterHeight + y);
+                // Xử lý riêng cho cốc đo (cắt ảnh với tỉ lệ chính xác)
+                if (cup.type === 'measuring' && cup.showScale && measuredCupFull.complete) {
+                    // Thông số ảnh gốc (measured_cup_full.png: 370×392px)
+                    const imgWidth = measuredCupFull.naturalWidth; // 370px
+                    const imgHeight = measuredCupFull.naturalHeight; // 392px
+
+                    // Sử dụng số liệu đo thực tế (đo từ đáy ảnh lên):
+                    // Vạch: 0ml=13px, 100ml=33px, 200ml=64px, 300ml=95px, 400ml=126px, 
+                    //       500ml=157px, 900ml=281px, 1000ml=313px
+                    // 
+                    // Phân tích: 
+                    // - 0→100ml: 20px (đáy cốc rộng)
+                    // - 100→900ml: ~31px/100ml (đều đặn)
+                    // - Vùng ổn định: 100-900ml có tỷ lệ tuyến tính
+
+                    const waterBottomY = 392 - 13; // Đáy nước = 379px (0ml)
+                    const waterTopY = 392 - 313; // Đỉnh nước = 79px (1000ml)
+
+                    // Tính vị trí Y dựa trên ml hiện tại
+                    const currentMl = cup.fill;
+                    let sourceY;
+
+                    if (currentMl <= 100) {
+                        // Vùng 0-100ml: nội suy tuyến tính
+                        const ratio = currentMl / 100;
+                        const heightInImage = 20 * ratio; // 0→100ml = 20px
+                        sourceY = waterBottomY - heightInImage;
+                    } else {
+                        // Vùng 100-1000ml: tỷ lệ đều 31px/100ml
+                        const mlAbove100 = currentMl - 100;
+                        const heightAbove100 = (mlAbove100 / 100) * 31; // 31px mỗi 100ml
+                        sourceY = (392 - 33) - heightAbove100; // Bắt đầu từ vạch 100ml (y=359)
+                    }
+
+                    // Giới hạn vùng cắt trong phạm vi nước (không vượt quá đỉnh nước)
+                    const clampedSourceY = Math.max(waterTopY, sourceY);
+                    const clampedSourceHeight = waterBottomY - clampedSourceY;
+
+                    // Tính scale dựa trên tỷ lệ ảnh gốc để đảm bảo chính xác
+                    // Tính scale từ cả width và height, lấy giá trị nhỏ hơn để giữ nguyên tỷ lệ
+                    const scaleW = cup.w / imgWidth;
+                    const scaleH = cup.h / imgHeight;
+                    const scale = Math.min(scaleW, scaleH); // Dùng scale nhỏ hơn để không bị méo
+
+                    // Tính lại kích thước thực tế hiển thị (giữ nguyên tỷ lệ ảnh gốc)
+                    const actualWidth = imgWidth * scale;
+                    const actualHeight = imgHeight * scale;
+
+                    // Căn giữa nếu cốc rộng hơn ảnh sau khi scale
+                    const offsetX = (cup.w - actualWidth) / 2;
+                    const offsetY = (cup.h - actualHeight) / 2;
+
+                    // Tính vị trí trên canvas: 
+                    const destY = cup.y + offsetY + (clampedSourceY * scale);
+                    const destHeight = clampedSourceHeight * scale;
+                    const destX = cup.x + offsetX;
+                    const destWidth = actualWidth;
+
+                    // Vẽ phần nước đã cắt
+                    ctx.drawImage(
+                        measuredCupFull,
+                        0, // sourceX: từ trái ảnh gốc
+                        clampedSourceY, // sourceY: vị trí bắt đầu cắt
+                        imgWidth, // sourceWidth: toàn bộ chiều rộng gốc
+                        clampedSourceHeight, // sourceHeight: chiều cao cắt
+                        destX, // destX: vị trí x trên canvas (có căn giữa)
+                        destY, // destY: vị trí y trên canvas
+                        destWidth, // destWidth: chiều rộng thực tế (giữ tỷ lệ)
+                        destHeight // destHeight: chiều cao canvas
+                    );
+                } else {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(cup.x, cup.y + cup.h - waterHeight);
+
+                    // Tạo sóng nước
+                    for (let x = 0; x <= cup.w; x += 5) {
+                        const y = Math.sin((x / 50) * Math.PI * 2 + t) * 6;
+                        ctx.lineTo(cup.x + x, cup.y + cup.h - waterHeight + y);
+                    }
+
+                    ctx.lineTo(cup.x + cup.w, cup.y + cup.h);
+                    ctx.lineTo(cup.x, cup.y + cup.h);
+                    ctx.closePath();
+                    ctx.clip();
+
+                    if (cupFull.complete) {
+                        ctx.drawImage(cupFull, cup.x, cup.y, cup.w, cup.h);
+                    } else {
+                        ctx.fillStyle = "rgba(0,150,255,0.6)";
+                        ctx.fillRect(cup.x, cup.y + cup.h - waterHeight, cup.w, waterHeight);
+                    }
+                    ctx.restore();
+                }
+            }
+            // Hiển thị thông tin
+            if (cup.showUnit) {
+                ctx.fillStyle = "#2c3e50";
+                ctx.font = "14px sans-serif";
+                const cupUnit = cup.unit || 'l';
+                const displayFill = cupUnit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup.fill);
+                const displayCapacity = cupUnit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
+                const cupType = cup.type === 'measuring' ? 'Cốc đo' : 'Cốc';
+                const normalCupIndex = cups.filter((c, i) => c.type === cup.type && cups.indexOf(c) <= cups.indexOf(
+                    cup)).length;
+                ctx.fillText(`${cupType} ${normalCupIndex}: ${displayFill} / ${displayCapacity} ${cupUnit}`, cup.x, cup
+                    .y + cup.h + 20);
+            }
         }
 
-        ctx.lineTo(cup.x + cup.w, cup.y + cup.h);
-        ctx.lineTo(cup.x, cup.y + cup.h);
-        ctx.closePath();
-        ctx.clip();
-        
-        if (cupFull.complete) {
-            ctx.drawImage(cupFull, cup.x, cup.y, cup.w, cup.h);
-        } else {
-            ctx.fillStyle = "rgba(0,150,255,0.6)";
-            ctx.fillRect(cup.x, cup.y + cup.h - waterHeight, cup.w, waterHeight);
-        }
-        ctx.restore();
-    }
-}
-    // Hiển thị thông tin
-    if (cup.showUnit) {
-        ctx.fillStyle = "#2c3e50";
-        ctx.font = "14px sans-serif";
-        const cupUnit = cup.unit || 'l';
-        const displayFill = cupUnit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup.fill);
-        const displayCapacity = cupUnit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
-        const cupType = cup.type === 'measuring' ? 'Cốc đo' : 'Cốc';
-        const normalCupIndex = cups.filter((c, i) => c.type === cup.type && cups.indexOf(c) <= cups.indexOf(cup)).length;
-        ctx.fillText(`${cupType} ${normalCupIndex}: ${displayFill} / ${displayCapacity} ${cupUnit}`, cup.x, cup.y + cup.h + 20);
-    }
-}
         function drawBottle() {
             ctx.save();
             ctx.translate(bottle.x + bottle.w / 2, bottle.y + bottle.h / 2);
@@ -874,12 +914,12 @@ if (cup.fill > 0) {
             // Không chọn cốc vừa mới tạo
             if (cup.justCreated) return false;
 
-            // ✅ Kiểm tra bình phải ở bên phải cốc
+            // Kiểm tra bình phải ở bên phải cốc
             const bottleCenterX = bottle.x + bottle.w / 2;
             const cupCenterX = cup.x + cup.w / 2;
             const isBottleOnRight = bottleCenterX > cupCenterX;
 
-            // ✅ Kiểm tra góc trái trên bình phải cao hơn cạnh trên cùng của cốc một khoảng theo tỉ lệ màn hình
+            // Kiểm tra góc trái trên bình phải cao hơn cạnh trên cùng của cốc một khoảng theo tỉ lệ màn hình
             const bottleTopLeftY = bottle.y; // Góc trái trên của bình
             const cupTopY = cup.y; // Cạnh trên cùng của cốc
             const minGap = canvas.height * 0.05; // Khoảng cách tối thiểu = 5% chiều cao canvas
@@ -1063,8 +1103,8 @@ if (cup.fill > 0) {
             const btn = document.getElementById("btnAddCup");
             const btnMeasuring = document.getElementById("btnAddMeasuringCup");
             const totalCups = cups.length;
-            btn.textContent = `+ Cốc thường (${totalCups}/5)`;
-            btnMeasuring.textContent = `📏 Cốc đo 1L (${totalCups}/5)`;
+            btn.textContent = `Thêm cốc thường (${totalCups}/5)`;
+            btnMeasuring.textContent = `📏 Thêm cốc đo 1L (${totalCups}/5)`;
 
             if (totalCups >= 5) {
                 btn.disabled = true;
@@ -1327,7 +1367,7 @@ if (cup.fill > 0) {
         document.getElementById("settingsBtn").addEventListener("click", () => {
             const panel = document.getElementById("settingsPanel");
             const overlay = document.getElementById("settingsOverlay");
-            const isOpen = panel.style.display !== "none";
+            const isOpen = panel.classList.contains("active");
 
             if (isOpen) {
                 // Đang mở, muốn đóng
@@ -1335,8 +1375,8 @@ if (cup.fill > 0) {
                     // Có thay đổi chưa lưu
                     document.getElementById("confirmModal").classList.add("active");
                 } else {
-                    // Không có thay đổi, đóng bình thường
-                    panel.style.display = "none";
+                    // Không có thay đổi, đóng với animation
+                    panel.classList.remove("active");
                     overlay.classList.remove("active");
                 }
             } else {
@@ -1346,8 +1386,13 @@ if (cup.fill > 0) {
                     cups: JSON.parse(JSON.stringify(cups)),
                 };
                 settingsChanged = false;
-                panel.style.display = "block";
+
+                // Hiện overlay trước, sau đó hiện panel
                 overlay.classList.add("active");
+                // Delay nhỏ để animation mượt hơn
+                setTimeout(() => {
+                    panel.classList.add("active");
+                }, 10);
 
                 document.getElementById("bottleUnitSelect").value = bottle.unit || 'l';
                 const bottleUnit = bottle.unit || 'l';
@@ -1361,7 +1406,6 @@ if (cup.fill > 0) {
                 updateSettingsPanel();
             }
         });
-
         // Modal confirm buttons
         document.getElementById("modalConfirm").addEventListener("click", () => {
             // Hủy thay đổi - khôi phục state cũ
@@ -1369,7 +1413,8 @@ if (cup.fill > 0) {
             cups = JSON.parse(JSON.stringify(savedState.cups));
 
             document.getElementById("confirmModal").classList.remove("active");
-            document.getElementById("settingsPanel").style.display = "none";
+            // Đóng với animation
+            document.getElementById("settingsPanel").classList.remove("active");
             document.getElementById("settingsOverlay").classList.remove("active");
             settingsChanged = false;
         });
@@ -1458,7 +1503,8 @@ if (cup.fill > 0) {
 
         document.getElementById("applySettings").addEventListener("click", () => {
             applySettings();
-            document.getElementById("settingsPanel").style.display = "none";
+            // Đóng với animation
+            document.getElementById("settingsPanel").classList.remove("active");
             document.getElementById("settingsOverlay").classList.remove("active");
         });
 
@@ -1505,8 +1551,8 @@ if (cup.fill > 0) {
                 // Có thay đổi chưa lưu - hiện modal xác nhận
                 document.getElementById("confirmModal").classList.add("active");
             } else {
-                // Không có thay đổi - đóng bình thường
-                panel.style.display = "none";
+                // Không có thay đổi - đóng với animation
+                panel.classList.remove("active");
                 overlay.classList.remove("active");
             }
         });
