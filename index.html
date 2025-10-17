@@ -604,79 +604,139 @@
             obj.w = obj.h * ratio;
         }
 
-        function drawCup(cup, index, highlight = false) {
-            if (highlight) {
-                ctx.save();
-                ctx.fillStyle = "rgba(0,200,255,0.15)";
-                ctx.fillRect(cup.x - 10, cup.y - 10, cup.w + 20, cup.h + 20);
-                ctx.restore();
-            }
+function drawCup(cup, index, highlight = false) {
+    if (highlight) {
+        ctx.save();
+        ctx.fillStyle = "rgba(0,200,255,0.15)";
+        ctx.fillRect(cup.x - 10, cup.y - 10, cup.w + 20, cup.h + 20);
+        ctx.restore();
+    }
 
-            // Vẽ cốc
-            if (cupEmpty.complete) {
-                if (cup.type === 'measuring' && cup.showScale) {
-                    ctx.drawImage(measuredCupEmpty, cup.x, cup.y, cup.w, cup.h)
-                } else {
-                    ctx.drawImage(cupEmpty, cup.x, cup.y, cup.w, cup.h)
-                }
-            } else {
-                ctx.strokeStyle = "#2c3e50";
-                ctx.strokeRect(cup.x, cup.y, cup.w, cup.h);
-            }
+    // Vẽ cốc rỗng (nền)
+    if (cupEmpty.complete) {
+        if (cup.type === 'measuring' && cup.showScale) {
+            // ✅ Vẽ cốc đo với tỉ lệ gốc (không kéo dãn)
+            ctx.drawImage(measuredCupEmpty, cup.x, cup.y, cup.w, cup.h);
+        } else {
+            ctx.drawImage(cupEmpty, cup.x, cup.y, cup.w, cup.h);
+        }
+    } else {
+        ctx.strokeStyle = "#2c3e50";
+        ctx.strokeRect(cup.x, cup.y, cup.w, cup.h);
+    }
 
-            // Vẽ nước
-            if (cup.fill > 0) {
-                const percent = cup.fill / cup.capacity;
-                const waterHeight = cup.h * percent;
-                ctx.save();
-                ctx.beginPath();
-                ctx.moveTo(cup.x, cup.y + cup.h - waterHeight);
+// Vẽ nước
+if (cup.fill > 0) {
+    const percent = cup.fill / cup.capacity;
+    const waterHeight = cup.h * percent;
+    
+// ✅ Xử lý riêng cho cốc đo (cắt ảnh với tỉ lệ chính xác)
+    if (cup.type === 'measuring' && cup.showScale && measuredCupFull.complete) {
+        // Thông số ảnh gốc (measured_cup_full.png: 370×392px)
+        const imgWidth = measuredCupFull.naturalWidth;   // 370px
+        const imgHeight = measuredCupFull.naturalHeight; // 392px
+        
+        // ✅ Sử dụng số liệu đo thực tế (đo từ đáy ảnh lên):
+        // Vạch: 0ml=13px, 100ml=33px, 200ml=64px, 300ml=95px, 400ml=126px, 
+        //       500ml=157px, 900ml=281px, 1000ml=313px
+        // 
+        // Phân tích: 
+        // - 0→100ml: 20px (đáy cốc rộng)
+        // - 100→900ml: ~31px/100ml (đều đặn)
+        // - Vùng ổn định: 100-900ml có tỷ lệ tuyến tính
+        
+        const waterBottomY = 392 - 13;   // Đáy nước = 379px (0ml)
+        const waterTopY = 392 - 313;     // Đỉnh nước = 79px (1000ml)
+        
+        // Tính vị trí Y dựa trên ml hiện tại
+        const currentMl = cup.fill;
+        let sourceY;
+        
+        if (currentMl <= 100) {
+            // Vùng 0-100ml: nội suy tuyến tính
+            const ratio = currentMl / 100;
+            const heightInImage = 20 * ratio; // 0→100ml = 20px
+            sourceY = waterBottomY - heightInImage;
+        } else {
+            // Vùng 100-1000ml: tỷ lệ đều 31px/100ml
+            const mlAbove100 = currentMl - 100;
+            const heightAbove100 = (mlAbove100 / 100) * 31; // 31px mỗi 100ml
+            sourceY = (392 - 33) - heightAbove100; // Bắt đầu từ vạch 100ml (y=359)
+        }
+        
+        // Giới hạn vùng cắt trong phạm vi nước (không vượt quá đỉnh nước)
+        const clampedSourceY = Math.max(waterTopY, sourceY);
+        const clampedSourceHeight = waterBottomY - clampedSourceY;
+        
+        // ✅ Tính scale dựa trên tỷ lệ ảnh gốc để đảm bảo chính xác
+        // Tính scale từ cả width và height, lấy giá trị nhỏ hơn để giữ nguyên tỷ lệ
+        const scaleW = cup.w / imgWidth;
+        const scaleH = cup.h / imgHeight;
+        const scale = Math.min(scaleW, scaleH); // Dùng scale nhỏ hơn để không bị méo
+        
+        // ✅ Tính lại kích thước thực tế hiển thị (giữ nguyên tỷ lệ ảnh gốc)
+        const actualWidth = imgWidth * scale;
+        const actualHeight = imgHeight * scale;
+        
+        // ✅ Căn giữa nếu cốc rộng hơn ảnh sau khi scale
+        const offsetX = (cup.w - actualWidth) / 2;
+        const offsetY = (cup.h - actualHeight) / 2;
+        
+        // ✅ Tính vị trí trên canvas: 
+        const destY = cup.y + offsetY + (clampedSourceY * scale);
+        const destHeight = clampedSourceHeight * scale;
+        const destX = cup.x + offsetX;
+        const destWidth = actualWidth;
+        
+        // Vẽ phần nước đã cắt
+        ctx.drawImage(
+            measuredCupFull,
+            0,                          // sourceX: từ trái ảnh gốc
+            clampedSourceY,             // sourceY: vị trí bắt đầu cắt
+            imgWidth,                   // sourceWidth: toàn bộ chiều rộng gốc
+            clampedSourceHeight,        // sourceHeight: chiều cao cắt
+            destX,                      // destX: vị trí x trên canvas (có căn giữa)
+            destY,                      // destY: vị trí y trên canvas
+            destWidth,                  // destWidth: chiều rộng thực tế (giữ tỷ lệ)
+            destHeight                  // destHeight: chiều cao canvas
+        );
+    }else {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cup.x, cup.y + cup.h - waterHeight);
 
-                if (cup.type === 'measuring' && cup.showScale) {
-                    for (let x = 0; x <= cup.w; x += 5) {
-                        const y = Math.sin((x / 50) * Math.PI * 2 + t) * 2;
-                        ctx.lineTo(cup.x + x, cup.y + cup.h - waterHeight + y);
-                    }
-                } else {
-                    for (let x = 0; x <= cup.w; x += 5) {
-                        const y = Math.sin((x / 50) * Math.PI * 2 + t) * 6;
-                        ctx.lineTo(cup.x + x, cup.y + cup.h - waterHeight + y);
-                    }
-                }
-
-                ctx.lineTo(cup.x + cup.w, cup.y + cup.h);
-                ctx.lineTo(cup.x, cup.y + cup.h);
-                ctx.closePath();
-                ctx.clip();
-                if (cupFull.complete) {
-                    if (cup.type === 'measuring' && cup.showScale) {
-                        ctx.drawImage(measuredCupFull, cup.x, cup.y, cup.w, cup.h)
-                    } else {
-                        ctx.drawImage(cupFull, cup.x, cup.y, cup.w, cup.h)
-                    }
-                } else {
-                    ctx.fillStyle = "rgba(0,150,255,0.6)";
-                    ctx.fillRect(cup.x, cup.y + cup.h - waterHeight, cup.w, waterHeight);
-                }
-                ctx.restore();
-            }
-
-            // Hiển thị thông tin
-            if (cup.showUnit) {
-                ctx.fillStyle = "#2c3e50";
-                ctx.font = "14px sans-serif";
-                const cupUnit = cup.unit || 'l';
-                const displayFill = cupUnit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup.fill);
-                const displayCapacity = cupUnit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
-                const cupType = cup.type === 'measuring' ? 'Cốc đo' : 'Cốc';
-                const normalCupIndex = cups.filter((c, i) => c.type === cup.type && cups.indexOf(c) <= cups.indexOf(
-                    cup)).length;
-                ctx.fillText(`${cupType} ${normalCupIndex}: ${displayFill} / ${displayCapacity} ${cupUnit}`, cup.x, cup
-                    .y + cup.h + 20);
-                cupUnit
-            }
+        // Tạo sóng nước
+        for (let x = 0; x <= cup.w; x += 5) {
+            const y = Math.sin((x / 50) * Math.PI * 2 + t) * 6;
+            ctx.lineTo(cup.x + x, cup.y + cup.h - waterHeight + y);
         }
 
+        ctx.lineTo(cup.x + cup.w, cup.y + cup.h);
+        ctx.lineTo(cup.x, cup.y + cup.h);
+        ctx.closePath();
+        ctx.clip();
+        
+        if (cupFull.complete) {
+            ctx.drawImage(cupFull, cup.x, cup.y, cup.w, cup.h);
+        } else {
+            ctx.fillStyle = "rgba(0,150,255,0.6)";
+            ctx.fillRect(cup.x, cup.y + cup.h - waterHeight, cup.w, waterHeight);
+        }
+        ctx.restore();
+    }
+}
+    // Hiển thị thông tin
+    if (cup.showUnit) {
+        ctx.fillStyle = "#2c3e50";
+        ctx.font = "14px sans-serif";
+        const cupUnit = cup.unit || 'l';
+        const displayFill = cupUnit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup.fill);
+        const displayCapacity = cupUnit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
+        const cupType = cup.type === 'measuring' ? 'Cốc đo' : 'Cốc';
+        const normalCupIndex = cups.filter((c, i) => c.type === cup.type && cups.indexOf(c) <= cups.indexOf(cup)).length;
+        ctx.fillText(`${cupType} ${normalCupIndex}: ${displayFill} / ${displayCapacity} ${cupUnit}`, cup.x, cup.y + cup.h + 20);
+    }
+}
         function drawBottle() {
             ctx.save();
             ctx.translate(bottle.x + bottle.w / 2, bottle.y + bottle.h / 2);
