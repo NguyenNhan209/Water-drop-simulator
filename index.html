@@ -164,7 +164,8 @@
             overflow-y: auto;
             flex: 1;
             min-height: 0;
-            max-height: calc(80vh - 80px); /* ← Thêm dòng này, 80px là chiều cao header */
+            max-height: calc(80vh - 80px);
+            /* ← Thêm dòng này, 80px là chiều cao header */
         }
 
         /* ← Thêm mới: Tùy chỉnh scrollbar */
@@ -410,62 +411,62 @@
         <div id="settingsOverlay"></div>
     </div>
 
-<div id="settingsPanel" style="display:none;">
-    <div id="settingsHeader">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h4 style="margin: 0;">⚙️ Cài đặt</h4>
-            <button id="applySettings">✓ Áp dụng</button>
+    <div id="settingsPanel" style="display:none;">
+        <div id="settingsHeader">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin: 0;">⚙️ Cài đặt</h4>
+                <button id="applySettings">✓ Áp dụng</button>
+            </div>
+        </div>
+
+        <div id="settingsContent">
+            <label>
+                Đơn vị đo bình nước
+                <select id="bottleUnitSelect">
+                    <option value="ml">Mililit (ml)</option>
+                    <option value="l">Lít (l)</option>
+                </select>
+            </label>
+
+            <button class="hide-all-btn" id="toggleAllUnits">👁️ Ẩn tất cả đơn vị đo</button>
+
+            <hr>
+
+            <label style="font-size: 14px; font-weight: 600; color: #1a202c; margin-bottom: 8px;">
+                🍶 Bình nước
+            </label>
+            <div class="settings-section">
+                <label style="font-size: 12px; color: #718096;">
+                    Mức nước hiện tại
+                    <input type="number" id="bottleFillInput" />
+                </label>
+                <label style="font-size: 12px; color: #718096;">
+                    Dung tích tối đa
+                    <input type="number" id="bottleCapacityInput" />
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="bottleShowUnit" checked />
+                    <span>Hiển thị đơn vị đo</span>
+                </label>
+            </div>
+
+            <hr>
+
+            <label style="font-size: 14px; font-weight: 600; color: #1a202c; margin-bottom: 8px;">
+                🥤 Cốc thường
+            </label>
+            <div id="cupsSettingsContainer" style="margin-top: 8px;"></div>
+
+            <hr>
+
+            <label style="font-size: 14px; font-weight: 600; color: #1a202c; margin-bottom: 8px;">
+                📏 Cốc đo 1 lít
+            </label>
+            <div id="measuringCupsSettingsContainer" style="margin-top: 8px;"></div>
+
+            <hr> <!-- ← Di chuyển vào đây -->
         </div>
     </div>
-
-    <div id="settingsContent">
-        <label>
-            Đơn vị đo bình nước
-            <select id="bottleUnitSelect">
-                <option value="ml">Mililit (ml)</option>
-                <option value="l">Lít (l)</option>
-            </select>
-        </label>
-
-        <button class="hide-all-btn" id="toggleAllUnits">👁️ Ẩn tất cả đơn vị đo</button>
-
-        <hr>
-
-        <label style="font-size: 14px; font-weight: 600; color: #1a202c; margin-bottom: 8px;">
-            🍶 Bình nước
-        </label>
-        <div class="settings-section">
-            <label style="font-size: 12px; color: #718096;">
-                Mức nước hiện tại
-                <input type="number" id="bottleFillInput" />
-            </label>
-            <label style="font-size: 12px; color: #718096;">
-                Dung tích tối đa
-                <input type="number" id="bottleCapacityInput" />
-            </label>
-            <label class="checkbox-label">
-                <input type="checkbox" id="bottleShowUnit" checked />
-                <span>Hiển thị đơn vị đo</span>
-            </label>
-        </div>
-        
-        <hr>
-        
-        <label style="font-size: 14px; font-weight: 600; color: #1a202c; margin-bottom: 8px;">
-            🥤 Cốc thường
-        </label>
-        <div id="cupsSettingsContainer" style="margin-top: 8px;"></div>
-
-        <hr>
-
-        <label style="font-size: 14px; font-weight: 600; color: #1a202c; margin-bottom: 8px;">
-            📏 Cốc đo 1 lít
-        </label>
-        <div id="measuringCupsSettingsContainer" style="margin-top: 8px;"></div>
-        
-        <hr> <!-- ← Di chuyển vào đây -->
-    </div>
-</div>
 
 
     <div id="confirmModal" class="modal-overlay">
@@ -800,10 +801,28 @@
 
         function isNearCup(bottle, cup) {
             const margin = 50;
-            return (bottle.x < cup.x + cup.w + margin &&
+
+            // Kiểm tra khoảng cách gần
+            const isInRange = (bottle.x < cup.x + cup.w + margin &&
                 bottle.x + bottle.w > cup.x - margin &&
                 bottle.y < cup.y + cup.h + margin &&
                 bottle.y + bottle.h > cup.y - margin);
+
+            if (!isInRange) return false;
+
+            // ✅ Kiểm tra bình phải ở bên phải cốc
+            const bottleCenterX = bottle.x + bottle.w / 2;
+            const cupCenterX = cup.x + cup.w / 2;
+            const isBottleOnRight = bottleCenterX > cupCenterX;
+
+            // ✅ Kiểm tra góc trái trên bình phải cao hơn cạnh trên cùng của cốc một khoảng theo tỉ lệ màn hình
+            const bottleTopLeftY = bottle.y; // Góc trái trên của bình
+            const cupTopY = cup.y; // Cạnh trên cùng của cốc
+            const minGap = canvas.height * 0.05; // Khoảng cách tối thiểu = 5% chiều cao canvas
+            const isBottleHighEnough = bottleTopLeftY < (cupTopY - minGap); // Bình phải cao hơn cốc ít nhất minGap
+
+            // Chỉ chọn cốc khi đủ cả 3 điều kiện
+            return isBottleOnRight && isBottleHighEnough;
         }
 
         function animate() {
@@ -833,46 +852,63 @@
             }
 
             if (bottle.pouring && nearestCup) {
+                // Tính tọa độ tâm bình và tâm cốc
                 const cx = bottle.x + bottle.w / 2;
                 const cy = bottle.y + bottle.h / 2;
                 const cupTargetX = nearestCup.x + nearestCup.w / 2;
                 const cupTargetY = nearestCup.y;
 
+                // Tính góc nghiêng tối ưu từ tâm bình đến đỉnh cốc
                 const dx = cupTargetX - cx;
                 const dy = cupTargetY - cy;
                 let targetAngle = Math.atan2(dy, dx) - Math.PI / 2;
 
-                const minAngle = -Math.PI * 0.42;
+                // Giới hạn góc nghiêng từ ~-29° đến ~-14°
+                const minAngle = -Math.PI * 0.16;
                 const maxAngle = -Math.PI * 0.08;
-
                 targetAngle = Math.max(minAngle, Math.min(maxAngle, targetAngle));
 
+                // Xoay bình mượt mà về góc mục tiêu (smooth transition)
                 bottle.angle += (targetAngle - bottle.angle) * 0.1;
 
-                // Tính tốc độ rót dựa trên đơn vị
-                const bottleUnit = bottle.unit || 'l';
-                const cupUnit = nearestCup.unit || 'l';
-                // Nếu đơn vị là ml thì rót nhanh hơn, nhưng giới hạn tốc độ tối đa
-                const basePourSpeed = 2;
-                const bottleSpeedMultiplier = bottleUnit === 'ml' ? 1000 : 1;
-                const cupSpeedMultiplier = cupUnit === 'ml' ? 1000 : 1;
-                // Lấy tốc độ trung bình của cả 2
-                const speedMultiplier = (bottleSpeedMultiplier + cupSpeedMultiplier) / 2;
-                const calculatedSpeed = basePourSpeed * speedMultiplier;
-                // Giới hạn tốc độ tối đa là 50 (ml hoặc l tùy theo đơn vị nhỏ nhất)
-                const maxSpeed = 15;
-                const pourSpeed = Math.min(calculatedSpeed, maxSpeed);
+                //  Kiểm tra bình đã nghiêng đủ góc chưa (để rót nước)
+                const isBottleTilted = Math.abs(bottle.angle) > 0.17; // Phải nghiêng > ~10°
 
-                const actualPour = Math.min(pourSpeed, bottle.fill, nearestCup.capacity - nearestCup.fill);
-                nearestCup.fill += actualPour;
-                bottle.fill -= actualPour;
+                // Chỉ rót nước khi bình đã nghiêng đủ góc
+                if (isBottleTilted) {
+                    // Tính tốc độ rót dựa trên đơn vị đo
+                    const bottleUnit = bottle.unit || 'l';
+                    const cupUnit = nearestCup.unit || 'l';
 
-                if (nearestCup.fill >= nearestCup.capacity) {
-                    nearestCup.fill = nearestCup.capacity;
-                    bottle.pouring = false;
+                    // Tốc độ cơ bản: 2 đơn vị/frame
+                    const basePourSpeed = 2;
+
+                    // Hệ số nhân tốc độ (ml rót nhanh hơn lít)
+                    const bottleSpeedMultiplier = bottleUnit === 'ml' ? 1000 : 1;
+                    const cupSpeedMultiplier = cupUnit === 'ml' ? 1000 : 1;
+
+                    // Lấy tốc độ trung bình giữa bình và cốc
+                    const speedMultiplier = (bottleSpeedMultiplier + cupSpeedMultiplier) / 2;
+                    const calculatedSpeed = basePourSpeed * speedMultiplier;
+
+                    // Giới hạn tốc độ tối đa: 15 đơn vị/frame
+                    const maxSpeed = 15;
+                    const pourSpeed = Math.min(calculatedSpeed, maxSpeed);
+
+                    // Tính lượng nước thực tế được rót (không vượt quá lượng còn lại hoặc dung tích cốc)
+                    const actualPour = Math.min(pourSpeed, bottle.fill, nearestCup.capacity - nearestCup.fill);
+
+                    // Chuyển nước từ bình sang cốc
+                    nearestCup.fill += actualPour;
+                    bottle.fill -= actualPour;
+
+                    // Dừng rót khi cốc đầy
+                    if (nearestCup.fill >= nearestCup.capacity) {
+                        nearestCup.fill = nearestCup.capacity;
+                        bottle.pouring = false;
+                    }
                 }
             }
-
             if (!bottle.pouring) {
                 bottle.angle += (0 - bottle.angle) * 0.1;
             }
