@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -55,19 +55,19 @@
         button {
             padding: 10px 20px;
             border: none;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
             color: #fff;
             border-radius: 10px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            transition: all 2s ease;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
         }
 
         button:active {
@@ -81,30 +81,42 @@
         }
 
         #resetBtn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            box-shadow: 0 2px 8px rgba(245, 87, 108, 0.3);
+            /* Đỏ nhẹ - reset */
+            background: linear-gradient(135deg, #E85D75 0%, #D14D65 100%);
+            box-shadow: 0 2px 8px rgba(232, 93, 117, 0.3);
         }
 
         #resetBtn:hover {
-            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+            box-shadow: 0 4px 12px rgba(232, 93, 117, 0.4);
         }
 
         #btnAddCup {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+            /* Xanh lá nhẹ - thêm cốc */
+            background: linear-gradient(135deg, #52C997 0%, #42B883 100%);
+            box-shadow: 0 2px 8px rgba(82, 201, 151, 0.3);
         }
 
         #btnAddCup:hover {
-            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+            box-shadow: 0 4px 12px rgba(82, 201, 151, 0.4);
         }
 
         #btnAddMeasuringCup {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            box-shadow: 0 2px 8px rgba(250, 112, 154, 0.3);
+            /* Cam giáo dục - cốc đo */
+            background: linear-gradient(135deg, #FF9A56 0%, #FF7E3D 100%);
+            box-shadow: 0 2px 8px rgba(255, 154, 86, 0.3);
         }
 
         #btnAddMeasuringCup:hover {
-            box-shadow: 0 4px 12px rgba(250, 112, 154, 0.4);
+            box-shadow: 0 4px 12px rgba(255, 154, 86, 0.4);
+        }
+
+        #settingsBtn {
+            background: linear-gradient(135deg, #5B7C99 0%, #4A6B85 100%);
+            box-shadow: 0 2px 8px rgba(91, 124, 153, 0.3);
+        }
+
+        #settingsBtn:hover {
+            box-shadow: 0 4px 12px rgba(91, 124, 153, 0.4);
         }
 
         .canvas-wrapper {
@@ -121,7 +133,8 @@
             height: 70vh;
             border-radius: 12px;
             display: block;
-            background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+            /* Nền trắng sạch - dễ quan sát */
+            background: #FFFFFF;
             cursor: grab;
         }
 
@@ -260,7 +273,7 @@
         #settingsPanel select:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
         }
 
         #settingsPanel select {
@@ -296,7 +309,7 @@
 
         .cup-item.expanded {
             background: #fff;
-            border-color: #667eea;
+            border-color: #4A90E2;
             cursor: default;
         }
 
@@ -323,7 +336,7 @@
 
         .cup-item.expanded .cup-header {
             font-weight: 600;
-            color: #667eea;
+            color: #4A90E2;
         }
 
         #cupsSettingsContainer label,
@@ -338,7 +351,7 @@
             width: 100%;
             padding: 8px;
             font-size: 13px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #E85D75 0%, #D14D65 100%);
         }
 
         .checkbox-label {
@@ -360,8 +373,28 @@
         .hide-all-btn {
             width: 100%;
             margin-top: 8px;
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            color: #1a202c;
+            background: linear-gradient(135deg, #5ED5A8 0%, #42B883 100%);
+            color: white;
+            box-shadow: 0 2px 6px rgba(66, 184, 131, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .hide-all-btn.hidden-state {
+            background: linear-gradient(135deg, #FF9A56 0%, #FF7E3D 100%);
+            box-shadow: 0 2px 6px rgba(255, 154, 86, 0.25);
+        }
+
+        .hide-all-btn.hidden-state:hover {
+            box-shadow: 0 4px 10px rgba(255, 154, 86, 0.35);
+        }
+
+        .hide-all-btn.ml-state {
+            background: linear-gradient(135deg, #9F7AEA 0%, #805AD5 100%);
+            box-shadow: 0 2px 6px rgba(159, 122, 234, 0.25);
+        }
+
+        .hide-all-btn.ml-state:hover {
+            box-shadow: 0 4px 10px rgba(159, 122, 234, 0.35);
         }
 
         .modal-overlay {
@@ -427,6 +460,294 @@
         #settingsOverlay.active {
             display: block;
         }
+
+        /* ========== TOAST BANNER ========== */
+        .toast-banner {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-120%);
+            background: linear-gradient(135deg, #FFE89C 0%, #FFD966 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+            z-index: 2000;
+            max-width: 90%;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toast-banner.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .toast-text {
+            flex: 1;
+            min-width: 250px;
+            color: #6B4423;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .toast-btn-help {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .toast-btn-help:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+        }
+
+        .toast-btn-dismiss {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #52C997 0%, #42B883 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .toast-btn-dismiss:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(82, 201, 151, 0.4);
+        }
+
+        .toast-btn-close {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            background: rgba(107, 68, 35, 0.1);
+            color: #6B4423;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toast-btn-close:hover {
+            background: rgba(107, 68, 35, 0.2);
+        }
+
+        /* ========== HELP PANEL MODAL ========== */
+        .help-panel {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: helpSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes helpSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .help-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 28px;
+            border-bottom: 2px solid #e2e8f0;
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+
+            border-radius: 20px 20px 0 0;
+        }
+
+        .help-header h3 {
+            margin: 0;
+            color: white;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .close-help-btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 28px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-help-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .help-content {
+            padding: 24px 28px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .help-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .help-content::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .help-content::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 10px;
+        }
+
+        .help-content::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
+        .help-section {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .help-section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 16px;
+        }
+
+        .help-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .help-section h4 {
+            margin: 0 0 16px 0;
+            color: #1e293b;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .help-image-placeholder {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-section ul {
+            margin: 12px 0 0 0;
+            padding-left: 24px;
+        }
+
+        .help-section li {
+            margin: 10px 0;
+            color: #475569;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .help-section li strong {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .help-footer {
+            background: linear-gradient(135deg, #FFE89C 0%, #FFD966 100%);
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 8px;
+        }
+
+        .help-footer p {
+            margin: 0;
+            color: #6B4423;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .toast-content {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .toast-text {
+                min-width: 0;
+            }
+
+            .toast-btn-help,
+            .toast-btn-dismiss {
+                width: 100%;
+            }
+
+            .help-panel {
+                width: 95%;
+                max-height: 90vh;
+            }
+
+            .help-header {
+                padding: 20px;
+            }
+
+            .help-content {
+                padding: 20px;
+            }
+
+            .help-section li {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 
@@ -436,8 +757,9 @@
             <h1>🌊 Mô phỏng rót nước</h1>
             <div id="controls">
                 <button id="resetBtn">↺ Reset</button>
-                <button id="btnAddCup">Thêm cốc thường</button>
-                <button id="btnAddMeasuringCup">📏 Thêm cốc đo 1L</button>
+                <button id="btnAddCup">+ Cốc thường</button>
+                <button id="btnAddMeasuringCup">📏 Cốc đo 1L</button>
+                <button id="helpBtn">📖 Hướng dẫn</button>
                 <button id="settingsBtn">⚙ Cài đặt</button>
             </div>
         </div>
@@ -448,6 +770,21 @@
         <div id="settingsOverlay"></div>
     </div>
 
+    <!-- Toast Banner -->
+    <div id="toastBanner" class="toast-banner">
+        <div class="toast-content">
+            <span class="toast-icon">💡</span>
+            <span class="toast-text">Mẹo: Kéo bình sang bên phải cốc và đặt cao hơn để rót nước!</span>
+            <button id="toastHelpBtn" class="toast-btn-help">📖 Xem hướng dẫn</button>
+            <button id="toastDismissBtn" class="toast-btn-dismiss">✓ Đã hiểu</button>
+            <button id="toastCloseBtn" class="toast-btn-close">×</button>
+        </div>
+    </div>
+
+    <!-- Settings Overlay -->
+    <div id="settingsOverlay"></div>
+
+    <!-- Settings Panel -->
     <div id="settingsPanel">
         <div id="settingsHeader">
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -501,19 +838,112 @@
             </label>
             <div id="measuringCupsSettingsContainer" style="margin-top: 8px;"></div>
 
-            <hr> <!-- ← Di chuyển vào đây -->
+            <hr>
         </div>
     </div>
 
+    <!-- Help Panel Modal -->
+    <div id="helpModal" class="modal-overlay">
+        <div class="help-panel">
+            <div class="help-header">
+                <h3>📖 Hướng dẫn sử dụng</h3>
+                <button id="closeHelpBtn" class="close-help-btn">×</button>
+            </div>
+            <div class="help-content">
+                <section class="help-section">
+                    <div class="help-icon">🌊</div>
+                    <h4>1. Cách rót nước</h4>
+                    <div class="help-image-placeholder">
+                        <svg width="100%" height="120" viewBox="0 0 200 120">
+                            <rect x="140" y="20" width="40" height="60" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"
+                                rx="5" />
+                            <text x="160" y="95" text-anchor="middle" font-size="10" fill="#64748b">Cốc</text>
+                            <rect x="110" y="10" width="25" height="50" fill="#bae6fd" stroke="#0284c7" stroke-width="2"
+                                rx="3" />
+                            <text x="122" y="70" text-anchor="middle" font-size="10" fill="#64748b">Bình</text>
+                            <path d="M 135 35 L 145 35" stroke="#ef4444" stroke-width="2" marker-end="url(#arrowred)" />
+                            <defs>
+                                <marker id="arrowred" markerWidth="10" markerHeight="10" refX="5" refY="3"
+                                    orient="auto">
+                                    <polygon points="0 0, 6 3, 0 6" fill="#ef4444" />
+                                </marker>
+                            </defs>
+                        </svg>
+                    </div>
+                    <ul>
+                        <li>Kéo bình nước sang <strong>bên phải</strong> cốc</li>
+                        <li>Đặt bình <strong>cao hơn</strong> cốc (góc trái trên bình phải cao hơn cạnh trên cốc một
+                            khoảng)</li>
+                        <li>Bình sẽ tự động <strong>nghiêng</strong> và rót nước</li>
+                        <li><strong>Click vào bình</strong> để kích hoạt chế độ rót (với cốc mới tạo)</li>
+                    </ul>
+                </section>
 
+                <section class="help-section">
+                    <div class="help-icon">🥤</div>
+                    <h4>2. Thêm/Xóa cốc</h4>
+                    <div class="help-image-placeholder">
+                        <svg width="100%" height="80" viewBox="0 0 200 80">
+                            <rect x="30" y="20" width="35" height="50" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"
+                                rx="5" />
+                            <rect x="80" y="20" width="35" height="50" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"
+                                rx="5" />
+                            <rect x="130" y="20" width="35" height="50" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"
+                                rx="5" />
+                            <line x1="135" y1="30" x2="160" y2="30" stroke="#78716c" stroke-width="1" />
+                            <line x1="135" y1="45" x2="160" y2="45" stroke="#78716c" stroke-width="1" />
+                            <line x1="135" y1="60" x2="160" y2="60" stroke="#78716c" stroke-width="1" />
+                            <text x="47.5" y="78" text-anchor="middle" font-size="9" fill="#64748b">Cốc thường</text>
+                            <text x="147.5" y="78" text-anchor="middle" font-size="9" fill="#64748b">Cốc đo</text>
+                        </svg>
+                    </div>
+                    <ul>
+                        <li>Nhấn <strong>"+ Cốc thường"</strong> để thêm cốc bình thường</li>
+                        <li>Nhấn <strong>"📏 Cốc đo 1L"</strong> để thêm cốc có vạch chia</li>
+                        <li>Tối đa <strong>5 cốc</strong> cùng lúc</li>
+                        <li>Xóa cốc trong <strong>⚙ Cài đặt → chọn cốc → 🗑 Xóa</strong></li>
+                    </ul>
+                </section>
+
+                <section class="help-section">
+                    <div class="help-icon">⚙️</div>
+                    <h4>3. Cài đặt</h4>
+                    <ul>
+                        <li>Điều chỉnh <strong>dung tích</strong> và <strong>mức nước</strong> của bình/cốc</li>
+                        <li>Chuyển đổi <strong>đơn vị</strong> giữa ml và lít</li>
+                        <li>Ẩn/hiện <strong>thông tin đơn vị đo</strong> trên màn hình</li>
+                        <li>Bật/tắt <strong>vạch chia</strong> trên cốc đo 1L</li>
+                    </ul>
+                </section>
+
+                <section class="help-section">
+                    <div class="help-icon">🎮</div>
+                    <h4>4. Thao tác khác</h4>
+                    <ul>
+                        <li><strong>Kéo thả</strong> bình và cốc để di chuyển vị trí</li>
+                        <li>Nhấn <strong>"↺ Reset"</strong> để khởi động lại trò chơi</li>
+                        <li>Nhấn <strong>"✓ Áp dụng"</strong> trong Cài đặt để lưu thay đổi</li>
+                        <li>Cốc mới tạo cần <strong>click vào bình</strong> trước khi rót</li>
+                    </ul>
+                </section>
+
+                <div class="help-footer">
+                    <p>💡 <strong>Mẹo:</strong> Thử nghiệm với các vị trí khác nhau để hiểu rõ cách rót nước!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
     <div id="confirmModal" class="modal-overlay">
         <div class="modal-content">
-            <h3>⚠️ Thay đổi chưa được lưu</h3>
-            <p>Bạn chưa lưu thay đổi. Bạn có muốn hủy các thay đổi vừa thực hiện không?</p>
+            <h3>💾 Lưu thay đổi?</h3>
+            <p>Bạn có thay đổi chưa được lưu. Bạn muốn lưu các thay đổi này không?</p>
             <div class="modal-buttons">
-                <button id="modalCancel">Không (Quay lại)</button>
-                <button id="modalConfirm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">Có (Hủy
-                    thay đổi)</button>
+                <button id="modalCancel" style="background: linear-gradient(135deg, #5B7C99 0%, #4A6B85 100%);">← Quay
+                    lại</button>
+                <button id="modalConfirm" style="background: linear-gradient(135deg, #52C997 0%, #42B883 100%);">✓ Lưu
+                    và đóng</button>
             </div>
         </div>
     </div>
@@ -764,8 +1194,8 @@
             }
             // Hiển thị thông tin
             if (cup.showUnit) {
-                ctx.fillStyle = "#2c3e50";
-                ctx.font = "14px sans-serif";
+                ctx.fillStyle = "#1a202c";
+                ctx.font = "bold 14px sans-serif";
                 const cupUnit = cup.unit || 'l';
                 const displayFill = cupUnit === "l" ? (cup.fill / 1000).toFixed(2) : Math.round(cup.fill);
                 const displayCapacity = cupUnit === "l" ? (cup.capacity / 1000).toFixed(2) : cup.capacity;
@@ -888,8 +1318,8 @@
 
             // Hiển thị thông tin bình
             if (bottle.showUnit) {
-                ctx.fillStyle = "#2c3e50";
-                ctx.font = "16px sans-serif";
+                ctx.fillStyle = "#1a202c";
+                ctx.font = "bold 16px sans-serif";
                 const bottleUnit = bottle.unit || 'l';
                 const displayFill = bottleUnit === "l" ? (bottle.fill / 1000).toFixed(2) : Math.round(bottle
                     .fill);
@@ -1133,12 +1563,17 @@
                 const bulkUnitBtn = document.createElement("button");
                 bulkUnitBtn.className = "hide-all-btn";
                 bulkUnitBtn.style.marginBottom = "8px";
-                bulkUnitBtn.textContent = "🔄 Đổi đơn vị tất cả cốc thường";
+                const currentUnit = normalCups[0].unit || 'l';
+                bulkUnitBtn.textContent = currentUnit === 'l' ? "🔄 Đổi sang ml (cốc thường)" :
+                    "🔄 Đổi sang lít (cốc thường)";
+                if (currentUnit === 'ml') {
+                    bulkUnitBtn.classList.add('ml-state');
+                }
                 bulkUnitBtn.onclick = () => {
                     const currentUnit = normalCups[0].unit || 'l';
                     const newUnit = currentUnit === 'l' ? 'ml' : 'l';
                     normalCups.forEach(c => c.unit = newUnit);
-                    settingsChanged = true;
+                    applySettings();
                     updateSettingsPanel();
                 };
                 normalContainer.appendChild(bulkUnitBtn);
@@ -1159,13 +1594,17 @@
                 const bulkUnitBtn = document.createElement("button");
                 bulkUnitBtn.className = "hide-all-btn";
                 bulkUnitBtn.style.marginBottom = "8px";
-                bulkUnitBtn.textContent = "🔄 Đổi đơn vị tất cả cốc đo";
+                const currentUnit = measuringCups[0].unit || 'l';
+                bulkUnitBtn.textContent = currentUnit === 'l' ? "🔄 Đổi sang ml (cốc đo)" : "🔄 Đổi sang lít (cốc đo)";
+                if (currentUnit === 'ml') {
+                    bulkUnitBtn.classList.add('ml-state');
+                }
                 bulkUnitBtn.onclick = () => {
                     const currentUnit = measuringCups[0].unit || 'l';
                     const newUnit = currentUnit === 'l' ? 'ml' : 'l';
                     measuringCups.forEach(c => c.unit = newUnit);
-                    settingsChanged = true;
-                    updateSettingsPanel();
+                    applySettings();
+                    updateToggleButtonText();
                 };
                 measuringContainer.appendChild(bulkUnitBtn);
 
@@ -1183,7 +1622,13 @@
         function updateToggleButtonText() {
             const btn = document.getElementById("toggleAllUnits");
             const allHidden = bottle.showUnit === false && cups.every(c => c.showUnit === false);
-            btn.textContent = allHidden ? "👁️‍🗨️ Hiện tất cả đơn vị đo" : "👁️ Ẩn tất cả đơn vị đo";
+            if (allHidden) {
+                btn.textContent = "👁️‍🗨️ Hiện tất cả đơn vị đo";
+                btn.classList.add("hidden-state"); // ← THÊM class màu cam
+            } else {
+                btn.textContent = "👁️ Ẩn tất cả đơn vị đo";
+                btn.classList.remove("hidden-state"); // ← Bỏ class màu cam
+            }
         }
 
         function createCupSettingItem(cup, globalIndex, displayIndex) {
@@ -1408,12 +1853,10 @@
         });
         // Modal confirm buttons
         document.getElementById("modalConfirm").addEventListener("click", () => {
-            // Hủy thay đổi - khôi phục state cũ
-            bottle = JSON.parse(JSON.stringify(savedState.bottle));
-            cups = JSON.parse(JSON.stringify(savedState.cups));
+            // Lưu thay đổi
+            applySettings();
 
             document.getElementById("confirmModal").classList.remove("active");
-            // Đóng với animation
             document.getElementById("settingsPanel").classList.remove("active");
             document.getElementById("settingsOverlay").classList.remove("active");
             settingsChanged = false;
@@ -1438,6 +1881,7 @@
                     if (checkbox) checkbox.checked = true;
                 });
                 btn.textContent = "👁️ Ẩn tất cả đơn vị đo";
+                btn.classList.remove("hidden-state");
             } else {
                 // Ẩn tất cả
                 bottle.showUnit = false;
@@ -1448,8 +1892,9 @@
                     if (checkbox) checkbox.checked = false;
                 });
                 btn.textContent = "👁️‍🗨️ Hiện tất cả đơn vị đo";
+                btn.classList.remove("hidden-state");
             }
-            settingsChanged = true;
+            applySettings();
             updateToggleButtonText(); // Cập nhật text sau khi thay đổi
         });
 
@@ -1601,6 +2046,59 @@
         canvas.addEventListener("mouseup", () => {
             bottle.dragging = false;
             cups.forEach(c => c.dragging = false);
+        });
+
+        // Kiểm tra xem user đã xem hướng dẫn chưa
+        const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
+        const toastBanner = document.getElementById('toastBanner');
+        const helpModal = document.getElementById('helpModal');
+
+        // Hiển thị toast nếu lần đầu
+        if (!hasSeenTutorial) {
+            setTimeout(() => {
+                toastBanner.classList.add('show');
+            }, 500); // Delay 0.5s sau khi load
+        }
+
+        // Nút "Xem hướng dẫn" trên toast
+        document.getElementById('toastHelpBtn').addEventListener('click', () => {
+            helpModal.classList.add('active');
+            toastBanner.classList.remove('show');
+        });
+
+        // Nút "Đã hiểu" trên toast
+        document.getElementById('toastDismissBtn').addEventListener('click', () => {
+            toastBanner.classList.remove('show');
+            localStorage.setItem('hasSeenTutorial', 'true');
+        });
+
+        // Nút "×" đóng toast
+        document.getElementById('toastCloseBtn').addEventListener('click', () => {
+            toastBanner.classList.remove('show');
+        });
+
+        // Nút "📖 Hướng dẫn" trong header
+        document.getElementById('helpBtn').addEventListener('click', () => {
+            helpModal.classList.add('active');
+        });
+
+        // Nút "×" đóng help modal
+        document.getElementById('closeHelpBtn').addEventListener('click', () => {
+            helpModal.classList.remove('active');
+        });
+
+        // Click vào overlay để đóng help modal
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.classList.remove('active');
+            }
+        });
+
+        // Đánh dấu đã xem tutorial khi mở help panel
+        helpModal.addEventListener('click', () => {
+            if (!localStorage.getItem('hasSeenTutorial')) {
+                localStorage.setItem('hasSeenTutorial', 'true');
+            }
         });
     </script>
 </body>
